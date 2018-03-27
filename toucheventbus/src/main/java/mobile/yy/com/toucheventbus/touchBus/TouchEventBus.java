@@ -28,7 +28,7 @@ public class TouchEventBus {
      * 一般在Activity的dispatchEvent开始分发。一个Activity上只能有一个起点。
      */
     @UiThread
-    static void dispatchTouchEvent(MotionEvent e, View parentView) {
+    public static void dispatchTouchEvent(MotionEvent e, View parentView) {
         List<TouchEventHandler<?, ? extends TouchViewHolder<?>>> orderList = instance().mContainer.getOrderTouchEventHandler();
         e.offsetLocation(parentView.getScrollX() + e.getRawX() - e.getX(), parentView.getScrollY() + e.getRawY() - e.getY());
         boolean intercepted = false;
