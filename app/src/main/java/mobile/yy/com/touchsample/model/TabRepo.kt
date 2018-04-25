@@ -40,7 +40,7 @@ class TabRepo {
 
     fun getSubTabs(bizId: Int): Single<out List<SubTab>> {
         return Observable.fromArray(0, 1, 2)
-                .map { idx -> SubTab(bizId, bizId * 10 + idx, "subTab$idx") }
+                .map { idx -> SubTab(bizId, bizId * 10 + idx, "subTab$idx", 60f) }
                 .doOnNext { tab -> subTabStore.put(tab.subBizId, tab) }
                 .reduce(mutableListOf()) { list: MutableList<SubTab>, tab: SubTab ->
                     list.apply { add(tab) }

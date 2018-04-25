@@ -1,11 +1,9 @@
 package mobile.yy.com.touchsample.touch
 
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.MotionEvent
 import mobile.yy.com.toucheventbus.touchBus.AttachToViewTouchEventHandler
 import mobile.yy.com.toucheventbus.touchBus.TouchEventHandler
-import mobile.yy.com.toucheventbus.touchBus.TouchEventHandlerUtil.actionToString
 import mobile.yy.com.toucheventbus.touchBus.TouchEventHandlerUtil.removePointers
 import mobile.yy.com.toucheventbus.touchBus.TouchViewHolder
 
@@ -23,7 +21,6 @@ class BackgroundImageTouchHandler : AttachToViewTouchEventHandler<ViewPager>() {
     private var twoPointer = false
 
     override fun onTouch(v: ViewPager, e: MotionEvent, hasBeenIntercepted: Boolean, insideView: Boolean): Boolean {
-        Log.i("zycheck1", "${actionToString(e.action)} ${e.pointerCount}")
         //针对双指滑动的情况，全部触摸事件交由背景图处理
         if (e.pointerCount == 2) {
             twoPointer = true

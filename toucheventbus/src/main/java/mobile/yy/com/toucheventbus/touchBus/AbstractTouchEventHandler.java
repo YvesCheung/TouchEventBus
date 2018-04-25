@@ -1,6 +1,5 @@
 package mobile.yy.com.toucheventbus.touchBus;
 
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -58,7 +57,6 @@ public abstract class AbstractTouchEventHandler<T> implements TouchEventHandler<
      * @inheritDoc
      */
     @Override
-    @CallSuper
     public boolean onTouch(@NonNull T t, @NonNull MotionEvent e, boolean hasBeenIntercepted) {
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -67,6 +65,8 @@ public abstract class AbstractTouchEventHandler<T> implements TouchEventHandler<
                         hasBeenIntercepted + " event = " + e);
                 break;
             default:
+                Log.v("TouchEventHandler", name() + " intercepted = " +
+                        hasBeenIntercepted + " event = " + e);
                 break;
         }
         return false;

@@ -10,6 +10,7 @@ import mobile.yy.com.toucheventbus.touchBus.TouchEventBus
 import mobile.yy.com.touchsample.App
 import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.model.MainTab
+import mobile.yy.com.touchsample.touch.SlidingTabTouchHandler
 import mobile.yy.com.touchsample.touch.TabTouchHandler
 
 class MainActivity : AppCompatActivity() {
@@ -26,9 +27,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         TouchEventBus.of(TabTouchHandler::class.java).attach(mainViewPager)
+        TouchEventBus.of(SlidingTabTouchHandler::class.java).attach(mainPagerTabStrip)
     }
 
     override fun onDestroy() {
+        TouchEventBus.of(SlidingTabTouchHandler::class.java).dettach(mainPagerTabStrip)
         TouchEventBus.of(TabTouchHandler::class.java).dettach(mainViewPager)
         super.onDestroy()
     }

@@ -17,5 +17,6 @@ data class MainTab(
 data class SubTab(
         val bizId: Int,
         val subBizId: Int,
-        val tabName: String
+        val tabName: String,
+        var textSize: Float
 )

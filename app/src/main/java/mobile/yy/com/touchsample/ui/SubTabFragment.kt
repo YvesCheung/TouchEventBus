@@ -2,20 +2,23 @@ package mobile.yy.com.touchsample.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_sub_tab.*
+import mobile.yy.com.toucheventbus.touchBus.TouchEventBus
 import mobile.yy.com.touchsample.App
 import mobile.yy.com.touchsample.R
+import mobile.yy.com.touchsample.touch.ZoomTextTouchHandler
+import mobile.yy.com.touchsample.util.OnVisibleChangeFragment
 
 /**
  * Created by 张宇 on 2018/4/25.
  * E-mail: zhangyu4@yy.com
  * YY: 909017428
  */
-class SubTabFragment : Fragment() {
+class SubTabFragment : OnVisibleChangeFragment(), ZoomUi {
 
     companion object {
         fun newInstance(subBizId: Int) = SubTabFragment().apply {
@@ -38,5 +41,21 @@ class SubTabFragment : Fragment() {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subTextView.text = presenter.getContent()
+        presenter.getTextSize().subscribe { textSize ->
+            subTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
+        }
+    }
+
+    override fun onFragmentVisibleChange(visible: Boolean) {
+        if (visible) {
+            TouchEventBus.of(ZoomTextTouchHandler::class.java).attach(this)
+        } else {
+            TouchEventBus.of(ZoomTextTouchHandler::class.java).dettach(this)
+        }
+    }
+
+    override fun resize(percentage: Float) {
+        val textSize = subTextView.textSize
+        presenter.setTextSize((percentage + 1f) * textSize)
     }
 }

@@ -11,13 +11,6 @@ import mobile.yy.com.toucheventbus.touchBus.AttachToViewTouchEventHandler
  */
 class TabTouchHandler : AttachToViewTouchEventHandler<ViewPager>() {
     override fun onTouch(v: ViewPager, e: MotionEvent, hasBeenIntercepted: Boolean, insideView: Boolean): Boolean {
-        if (hasBeenIntercepted) {
-            val ev = MotionEvent.obtain(e)
-            ev.action = MotionEvent.ACTION_CANCEL
-            v.dispatchTouchEvent(ev)
-            ev.recycle()
-            return true
-        }
         return v.dispatchTouchEvent(e)
     }
 

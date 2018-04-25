@@ -2,7 +2,6 @@ package mobile.yy.com.touchsample.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.view.LayoutInflater
@@ -12,13 +11,14 @@ import kotlinx.android.synthetic.main.fragment_main_tab.*
 import mobile.yy.com.touchsample.App
 import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.model.SubTab
+import mobile.yy.com.touchsample.util.OnVisibleChangeFragment
 
 /**
  * Created by 张宇 on 2018/4/25.
  * E-mail: zhangyu4@yy.com
  * YY: 909017428
  */
-class MainTabFragment : Fragment() {
+class MainTabFragment : OnVisibleChangeFragment() {
 
     companion object {
         fun newInstance(bizId: Int) = MainTabFragment().apply {
@@ -34,6 +34,8 @@ class MainTabFragment : Fragment() {
 
     private val mainTab by lazy { presenter.getTab() }
 
+    private val mAdapter by lazy { SubTabAdapter(childFragmentManager, mainTab.subTab) }
+
     @SuppressLint("InflateParams")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         bizId = arguments.getInt("bizId", bizId)
@@ -44,15 +46,28 @@ class MainTabFragment : Fragment() {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        subViewPager.adapter = SubTabAdapter(childFragmentManager, mainTab.subTab)
+        subViewPager.adapter = mAdapter
         subTabStrip.setViewPager(subViewPager)
+    }
+
+    override fun onFragmentVisibleChange(visible: Boolean) {
+        mAdapter.onVisibleChange(visible)
     }
 }
 
 class SubTabAdapter(fm: FragmentManager, private val tabs: List<SubTab>) : FragmentPagerAdapter(fm) {
+
+    private val fragments = Array(tabs.size) { pos ->
+        SubTabFragment.newInstance(tabs[pos].subBizId)
+    }
+
     override fun getCount() = tabs.size
 
-    override fun getItem(position: Int) = SubTabFragment.newInstance(tabs[position].subBizId)
+    override fun getItem(position: Int) = fragments[position]
 
     override fun getPageTitle(position: Int) = tabs[position].tabName
+
+    fun onVisibleChange(visible: Boolean) {
+        fragments.forEach { it.setParentFragmentVisible(visible) }
+    }
 }
