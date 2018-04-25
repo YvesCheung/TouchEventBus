@@ -34,6 +34,14 @@
         android:layout_above="@+id/mainPagerTabStrip"
         android:layout_below="@+id/mainTitleBar" />
 
+    <mobile.yy.com.touchsample.ui.FakeMenu
+        android:id="@+id/mainMenu"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/mainPagerTabStrip"
+        android:layout_below="@id/mainTitleBar"
+        android:paddingBottom="200dp" />
+
     <android.support.v4.view.ViewPager
         android:id="@+id/mainViewPager"
         android:layout_width="match_parent"
