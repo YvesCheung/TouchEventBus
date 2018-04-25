@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.gxz.PagerSlidingTabStrip
+        android:id="@+id/subTabStrip"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="#ffffff"
+        app:pstsIndicatorColor="@color/colorPrimary"
+        app:pstsShouldExpand="true"
+        app:pstsTextSelectedColor="@color/colorAccent" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/subViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/subTabStrip" />
+</RelativeLayout>

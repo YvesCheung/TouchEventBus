@@ -35,22 +35,26 @@ public interface TouchEventHandler<VIEW, HOLDER extends TouchViewHolder<VIEW>> {
      *                           该字段才有意义
      * @return 已经对触摸事件作出处理返回true
      */
-    boolean onTouch(@NonNull VIEW view, MotionEvent e, boolean hasBeenIntercepted);
+    boolean onTouch(@NonNull VIEW view, @NonNull MotionEvent e, boolean hasBeenIntercepted);
 
     /**
      * @return 返回在自己后面的Handler列表
      */
     @Nullable
-    List<Class<? extends TouchEventHandler>> nextHandler();
+    List<Class<? extends TouchEventHandler<?, ? extends TouchViewHolder<?>>>> nextHandler();
 
     /**
-     * 所有的ui都会存放在ViewHolder中。一个Handler会处理ViewHolder中所有View的事件
+     * 所有的ui都会存放在ViewHolder中。一个Handler会处理ViewHolder中所有View的事件。
+     * 理论上一个Handler只会对应一个ui类。
+     * ViewHolder是为了存放一个View可能会在同一时间内出现的多个实例。
+     * 比如后一个Fragment实例B在前一个实例A的onDestroy之前先onCreate。
      */
     @NonNull
     HOLDER getViewHolder();
 
     /**
      * 是否强制监听触摸事件
+     *
      * @return 返回true的话，无论前面的Handler是否已经处理过触摸事件，{@link #onTouch(Object, MotionEvent, boolean)}
      * 还是能收到触摸事件，但hasBeenIntercepted字段会为true。返回false的话，不会再收到触摸事件除非前面的Handler全
      * 都不处理

@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import java.util.Map;
 class TouchEventHandlerContainer {
     private static final String TAG = "TouchEventHandler";
     private Map<Class<? extends TouchEventHandler>, TouchEventHandler<?, ? extends TouchViewHolder<?>>>
-            mHandlers = new HashMap<>();
+            mHandlers = new LinkedHashMap<>();
     private List<TouchEventHandler<?, ? extends TouchViewHolder<?>>> mContainer = new ArrayList<>();
 
     /**
@@ -49,9 +50,9 @@ class TouchEventHandlerContainer {
             handlerCnt.put(h.getClass(), 0);
         }
         for (TouchEventHandler<?, ? extends TouchViewHolder<?>> h : mContainer) {
-            List<Class<? extends TouchEventHandler>> clzs = h.nextHandler();
-            if (clzs != null) {
-                for (Class<? extends TouchEventHandler> cls : clzs) {
+            List<Class<? extends TouchEventHandler<?, ? extends TouchViewHolder<?>>>> clz = h.nextHandler();
+            if (clz != null) {
+                for (Class<? extends TouchEventHandler> cls : clz) {
                     if (cls != null && mHandlers.containsKey(cls)) {
                         int cnt = handlerCnt.get(cls);
                         handlerCnt.put(cls, cnt + 1);
@@ -63,7 +64,7 @@ class TouchEventHandlerContainer {
         mContainer = new ArrayList<>();
         while (handlerCnt.size() > 0) {
             Class<? extends TouchEventHandler> hasKey = null;
-            List<Class<? extends TouchEventHandler>> nextKey = null;
+            List<Class<? extends TouchEventHandler<?, ? extends TouchViewHolder<?>>>> nextKey = null;
             for (Map.Entry<Class<? extends TouchEventHandler>, Integer> e : handlerCnt.entrySet()) {
                 if (e.getValue() <= 0) {
                     hasKey = e.getKey();

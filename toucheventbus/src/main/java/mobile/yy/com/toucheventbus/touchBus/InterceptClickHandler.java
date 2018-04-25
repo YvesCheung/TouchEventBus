@@ -11,8 +11,8 @@ import android.view.ViewGroup;
  * E-mail: zhangyu4@yy.com
  * YY: 909017428
  * <p>
- * 该处理器会把构造函数传入的参数ViewGroup上的点击事件拦截并不作处理。
  * 你可以实现一个子类继承于{@link InterceptClickHandler}，然后拦截所有clickable或longClickable的View的触摸事件。
+ * 注意这个Handler只会"拦截"点击事件，但不会处理点击事件，也就是不会触摸onClickListener之类的响应。
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class InterceptClickHandler extends AttachToViewTouchEventHandler<ViewGroup> {
@@ -26,12 +26,19 @@ public abstract class InterceptClickHandler extends AttachToViewTouchEventHandle
                 && performClick(v, e);
     }
 
+    /**
+     * 判断当前触摸事件是否击中了可点击的view
+     *
+     * @param vg 需要判断的view范围
+     * @param e  触摸事件
+     * @return true如果击中了范围内的某个可点击的子view
+     */
     protected boolean performClick(ViewGroup vg, MotionEvent e) {
         for (int i = 0; i < vg.getChildCount(); i++) {
             View v = vg.getChildAt(i);
             if (TouchEventHandlerUtil.isOnView(e, v)) {
                 if (v.isClickable() || v.isLongClickable()) {
-                    Log.i(TAG, "PreviewForShowClickHandler hit v = " + v);
+                    Log.i(TAG, name() + " hit v = " + v);
                     return true;
                 } else if (v instanceof ViewGroup) {
                     if (performClick((ViewGroup) v, e)) {

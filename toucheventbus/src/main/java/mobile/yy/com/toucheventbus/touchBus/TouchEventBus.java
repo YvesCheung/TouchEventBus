@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,10 +15,15 @@ import java.util.List;
  * <p>
  * 开播端直播间的触摸消息总线，负责把消息按顺序分发给TouchEventHandler
  */
+@SuppressWarnings("unused")
 public class TouchEventBus {
     private static final String TAG = "TouchEventHandler";
-    private static TouchEventBus mBus = new TouchEventBus();
-    private TouchEventHandlerContainer mContainer = new TouchEventHandlerContainer();
+    private final static TouchEventBus mBus = new TouchEventBus();
+    private final TouchEventHandlerContainer mContainer;
+
+    private TouchEventBus() {
+        mContainer = new TouchEventHandlerContainer();
+    }
 
     private static TouchEventBus instance() {
         return mBus;
@@ -26,14 +32,20 @@ public class TouchEventBus {
     /**
      * 分发触摸事件的起点。
      * 一般在Activity的dispatchEvent开始分发。一个Activity上只能有一个起点。
+     *
+     * @param e          触摸事件
+     * @param parentView 起点接收触摸事件的view。用于对触摸事件的发生坐标进行调整。
      */
     @UiThread
     public static void dispatchTouchEvent(MotionEvent e, View parentView) {
-        List<TouchEventHandler<?, ? extends TouchViewHolder<?>>> orderList = instance().mContainer.getOrderTouchEventHandler();
+        List<TouchEventHandler<?, ? extends TouchViewHolder<?>>> orderList = new ArrayList<>(
+                instance().mContainer.getOrderTouchEventHandler());
         e.offsetLocation(parentView.getScrollX() + e.getRawX() - e.getX(), parentView.getScrollY() + e.getRawY() - e.getY());
         boolean intercepted = false;
         for (TouchEventHandler<?, ? extends TouchViewHolder<?>> h : orderList) {
-            intercepted = dispatchInner(h, intercepted, e);
+            MotionEvent copyEvent = MotionEvent.obtain(e);
+            intercepted = dispatchInner(h, intercepted, copyEvent);
+            copyEvent.recycle();
         }
     }
 
@@ -44,12 +56,10 @@ public class TouchEventBus {
         final TouchEventHandler<VIEW, TouchViewHolder<VIEW>> h =
                 (TouchEventHandler<VIEW, TouchViewHolder<VIEW>>) handler;
         boolean interceptChild = intercepted;
-        MotionEvent copyEvent = MotionEvent.obtain(e);
         TouchViewHolder<VIEW> vh = h.getViewHolder();
         for (VIEW v : vh.getView()) {
-            interceptChild = h.onTouch(v, copyEvent, intercepted) || interceptChild;
+            interceptChild = h.onTouch(v, e, intercepted) || interceptChild;
         }
-        copyEvent.recycle();
         return interceptChild;
     }
 

@@ -1,5 +1,7 @@
 package mobile.yy.com.toucheventbus.touchBus;
 
+import android.support.annotation.NonNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,14 +13,15 @@ import java.util.Set;
 public class TouchViewHolder<VIEW> {
     private Set<VIEW> set = new HashSet<>();
 
-    public Set<VIEW> getView() {
+    @NonNull
+    Set<VIEW> getView() {
         return set;
     }
 
     /**
-     * 把TouchEventHandler绑定到指定的表示层上
+     * 把TouchEventHandler绑定到指定的ui上
      *
-     * @param v 表示层。它具体可能并不是一个View，可以是一个接口，或者对触摸事件作出反应的对象。
+     * @param v ui：它具体可能并不是一个View，可以是一个接口，或者对触摸事件作出反应的对象。
      * @see #dettach(Object)
      */
     public void attach(VIEW v) {
