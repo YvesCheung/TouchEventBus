@@ -2,7 +2,7 @@ package mobile.yy.com.touchsample.touch
 
 import android.view.MotionEvent
 import com.gxz.PagerSlidingTabStrip
-import mobile.yy.com.toucheventbus.touchBus.AttachToViewTouchEventHandler
+import mobile.yy.com.toucheventbus.AttachToViewTouchEventHandler
 
 /**
  * Created by 张宇 on 2018/4/25.

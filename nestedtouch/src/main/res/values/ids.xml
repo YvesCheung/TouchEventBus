@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="stickyHeadView" type="id" />
+    <item name="stickyNavView" type="id" />
+    <item name="stickyContentView" type="id" />
+</resources>

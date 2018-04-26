@@ -1,4 +1,4 @@
-package mobile.yy.com.toucheventbus.touchBus;
+package mobile.yy.com.toucheventbus;
 
 import android.os.SystemClock;
 import android.util.Log;

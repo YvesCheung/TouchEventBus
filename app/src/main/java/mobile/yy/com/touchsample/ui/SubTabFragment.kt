@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_sub_tab.*
-import mobile.yy.com.toucheventbus.touchBus.TouchEventBus
+import mobile.yy.com.toucheventbus.TouchEventBus
 import mobile.yy.com.touchsample.App
 import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.touch.ZoomTextTouchHandler

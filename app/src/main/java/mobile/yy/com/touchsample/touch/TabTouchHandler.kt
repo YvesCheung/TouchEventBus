@@ -2,7 +2,7 @@ package mobile.yy.com.touchsample.touch
 
 import android.support.v4.view.ViewPager
 import android.view.MotionEvent
-import mobile.yy.com.toucheventbus.touchBus.AttachToViewTouchEventHandler
+import mobile.yy.com.toucheventbus.AttachToViewTouchEventHandler
 
 /**
  * Created by 张宇 on 2018/4/25.

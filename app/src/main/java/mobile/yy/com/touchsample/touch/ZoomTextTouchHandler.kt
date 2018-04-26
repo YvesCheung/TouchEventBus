@@ -1,10 +1,10 @@
 package mobile.yy.com.touchsample.touch
 
 import android.view.MotionEvent
-import mobile.yy.com.toucheventbus.touchBus.AbstractTouchEventHandler
-import mobile.yy.com.toucheventbus.touchBus.TouchEventHandler
-import mobile.yy.com.toucheventbus.touchBus.TouchEventHandlerUtil.spacing
-import mobile.yy.com.toucheventbus.touchBus.TouchViewHolder
+import mobile.yy.com.toucheventbus.AbstractTouchEventHandler
+import mobile.yy.com.toucheventbus.TouchEventHandler
+import mobile.yy.com.toucheventbus.TouchEventHandlerUtil.spacing
+import mobile.yy.com.toucheventbus.TouchViewHolder
 import mobile.yy.com.touchsample.ui.ZoomUi
 
 /**
@@ -20,7 +20,7 @@ class ZoomTextTouchHandler : AbstractTouchEventHandler<ZoomUi>() {
         //判断为缩放的变化距离阈值
         private const val ZOOM_MIN_VALUE = 60f
         //缩放距离转化缩放百分比
-        private const val ZOOM_REGULAR = 300f
+        private const val ZOOM_REGULAR = 400f
     }
 
     private var space = 0f

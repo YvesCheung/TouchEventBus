@@ -10,7 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import mobile.yy.com.toucheventbus.touchBus.TouchEventBus
+import mobile.yy.com.toucheventbus.TouchEventBus
 import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.touch.BackgroundImageTouchHandler
 

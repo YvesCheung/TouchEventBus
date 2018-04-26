@@ -1,1 +1,1 @@
-include ':app', ':toucheventbus'
+include ':app', ':toucheventbus', ':nestedtouch'

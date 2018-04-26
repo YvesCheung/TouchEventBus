@@ -2,9 +2,9 @@ package mobile.yy.com.touchsample.touch
 
 import android.view.MotionEvent
 import android.view.VelocityTracker
-import mobile.yy.com.toucheventbus.touchBus.AbstractTouchEventHandler
-import mobile.yy.com.toucheventbus.touchBus.TouchEventHandler
-import mobile.yy.com.toucheventbus.touchBus.TouchViewHolder
+import mobile.yy.com.toucheventbus.AbstractTouchEventHandler
+import mobile.yy.com.toucheventbus.TouchEventHandler
+import mobile.yy.com.toucheventbus.TouchViewHolder
 import mobile.yy.com.touchsample.ui.FakeMenu
 
 /**

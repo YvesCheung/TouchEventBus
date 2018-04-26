@@ -4,11 +4,11 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.widget.TextView
-import mobile.yy.com.toucheventbus.touchBus.TouchEventBus
+import mobile.yy.com.toucheventbus.TouchEventBus
 import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.touch.MenuTouchHandler
 
@@ -34,7 +34,11 @@ class FakeMenu : TextView {
         setTextColor(Color.parseColor("#ff3399"))
         textSize = 25f
         gravity = Gravity.CENTER
-        setBackgroundColor(resources.getColor(R.color.colorPrimary))
+        setBackgroundColor(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            resources.getColor(R.color.colorPrimary, null)
+        } else {
+            resources.getColor(R.color.colorPrimary)
+        })
         typeface = Typeface.DEFAULT_BOLD
     }
 
@@ -53,7 +57,8 @@ class FakeMenu : TextView {
         super.onDetachedFromWindow()
     }
 
-    private var animator = ValueAnimator.ofFloat(1f)
+    private
+    var animator = ValueAnimator.ofFloat(1f)
 
     fun down() {
         animator.cancel()
@@ -64,7 +69,6 @@ class FakeMenu : TextView {
     }
 
     fun up(velocity: Float) {
-        Log.i("zycheck", "$velocity")
         val startX = x
         fun animate(velocity: Float, dis: Float) {
             val duration = Math.abs(dis / velocity)

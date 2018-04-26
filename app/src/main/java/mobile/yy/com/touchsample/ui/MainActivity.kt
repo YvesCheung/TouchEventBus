@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
 import android.view.MotionEvent
 import kotlinx.android.synthetic.main.activity_main.*
-import mobile.yy.com.toucheventbus.touchBus.TouchEventBus
+import mobile.yy.com.toucheventbus.TouchEventBus
 import mobile.yy.com.touchsample.App
 import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.model.MainTab
