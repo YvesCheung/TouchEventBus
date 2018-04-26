@@ -1,6 +1,7 @@
 package mobile.yy.com.touchsample.touch
 
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import mobile.yy.com.toucheventbus.touchBus.AbstractTouchEventHandler
 import mobile.yy.com.toucheventbus.touchBus.TouchEventHandler
 import mobile.yy.com.toucheventbus.touchBus.TouchViewHolder
@@ -15,6 +16,7 @@ class MenuTouchHandler : AbstractTouchEventHandler<FakeMenu>() {
 
     private var touchForMenu = false
     private var lastX = 0f
+    private var velocityTracker: VelocityTracker? = null
 
     override fun onTouch(ui: FakeMenu, e: MotionEvent, hasBeenIntercepted: Boolean): Boolean {
         super.onTouch(ui, e, hasBeenIntercepted)
@@ -24,18 +26,24 @@ class MenuTouchHandler : AbstractTouchEventHandler<FakeMenu>() {
                     touchForMenu = true
                     lastX = e.x
                     ui.down()
+                    velocityTracker = VelocityTracker.obtain()
                 } else {
                     touchForMenu = false
                 }
             }
             MotionEvent.ACTION_MOVE -> {
                 if (touchForMenu) {
+                    velocityTracker?.addMovement(e)
                     ui.move(e.x - lastX)
                     lastX = e.x
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (touchForMenu) ui.up()
+                if (touchForMenu) {
+                    velocityTracker?.computeCurrentVelocity(1)
+                    ui.up(velocityTracker?.xVelocity ?: 0f)
+                    velocityTracker?.recycle()
+                }
             }
         }
         return touchForMenu

@@ -19,24 +19,18 @@ import mobile.yy.com.touchsample.touch.MenuTouchHandler
  */
 class FakeMenu : TextView {
 
+    companion object {
+        const val DEFAULT_VELOCITY = 6f
+    }
+
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-//    companion object {
-//        const val OPEN = 0
-//        const val CLOSE = 1
-//        const val OPENING = 2
-//        const val CLOSING = 3
-//        const val DRAG = 4
-//    }
-//
-//    private var state = CLOSE
-
     init {
-        text = "I AM MENU"
+        text = "PANEL"
         setTextColor(Color.parseColor("#ff3399"))
         textSize = 25f
         gravity = Gravity.CENTER
@@ -61,22 +55,19 @@ class FakeMenu : TextView {
 
     private var animator = ValueAnimator.ofFloat(1f)
 
-    private val velocity = 10f
-
     fun down() {
         animator.cancel()
     }
 
     fun move(dx: Float) {
-        Log.i("zycheck", "$dx ${dx + x}")
         x = Math.min(Math.max(dx + x, -measuredWidth.toFloat()), 0f)
     }
 
-    fun up() {
+    fun up(velocity: Float) {
+        Log.i("zycheck", "$velocity")
         val startX = x
-        if (startX > -measuredWidth / 2f && startX < 0f) { //can open
-            val dis = -startX
-            val duration = dis / velocity
+        fun animate(velocity: Float, dis: Float) {
+            val duration = Math.abs(dis / velocity)
             animator = ValueAnimator.ofFloat(1f).apply {
                 this.duration = duration.toLong()
                 addUpdateListener {
@@ -85,17 +76,26 @@ class FakeMenu : TextView {
                 }
                 start()
             }
-        } else if (startX <= -measuredWidth / 2f && startX > -measuredWidth) { //can close
+        }
+
+        fun open(velocity: Float) {
+            val dis = -startX
+            animate(velocity, dis)
+        }
+
+        fun close(velocity: Float) {
             val dis = startX + measuredWidth
-            val duration = dis / velocity
-            animator = ValueAnimator.ofFloat(1f).apply {
-                this.duration = duration.toLong()
-                addUpdateListener {
-                    val percentage = it.animatedFraction
-                    x = startX - dis * percentage
-                }
-                start()
-            }
+            animate(velocity, -dis)
+        }
+
+        if (velocity > DEFAULT_VELOCITY) {
+            open(velocity)
+        } else if (velocity < -DEFAULT_VELOCITY) {
+            close(velocity)
+        } else if (startX > -measuredWidth / 2f && startX < 0f) {
+            open(DEFAULT_VELOCITY)
+        } else if (startX <= -measuredWidth / 2f && startX > -measuredWidth) {
+            close(DEFAULT_VELOCITY)
         }
     }
 
