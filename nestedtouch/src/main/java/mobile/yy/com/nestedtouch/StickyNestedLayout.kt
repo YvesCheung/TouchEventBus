@@ -76,7 +76,6 @@ class StickyNestedLayout : LinearLayout,
 
     //</editor-fold desc="基础布局部分">
 
-
     //<editor-fold desc="基础滚动能力部分">
 
     /**
