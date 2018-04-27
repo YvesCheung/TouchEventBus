@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/simple_title_bar" />
+
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <mobile.yy.com.nestedtouch.StickyNestedLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@id/stickyHeadView"
+                layout="@layout/moment_head_view" />
+
+            <com.gxz.PagerSlidingTabStrip
+                android:id="@id/stickyNavView"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#ffffff"
+                app:pstsIndicatorColor="@color/colorPrimary"
+                app:pstsShouldExpand="true"
+                app:pstsTextSelectedColor="@color/colorPrimaryDark" />
+
+            <android.support.v4.view.ViewPager
+                android:id="@id/stickyContentView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </mobile.yy.com.nestedtouch.StickyNestedLayout>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+</LinearLayout>
+

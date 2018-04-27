@@ -3,9 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TouchSample.iml" filepath="$PROJECT_DIR$/TouchSample.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/nestedtouch/nestedtouch.iml" filepath="$PROJECT_DIR$/nestedtouch/nestedtouch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/nestedtouchsample/nestedtouchsample.iml" filepath="$PROJECT_DIR$/nestedtouchsample/nestedtouchsample.iml" />
       <module fileurl="file://$PROJECT_DIR$/toucheventbus/toucheventbus.iml" filepath="$PROJECT_DIR$/toucheventbus/toucheventbus.iml" />
+      <module fileurl="file://$PROJECT_DIR$/touchsample/app.iml" filepath="$PROJECT_DIR$/touchsample/app.iml" />
     </modules>
   </component>
 </project>

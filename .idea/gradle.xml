@@ -8,9 +8,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/nestedtouch" />
+            <option value="$PROJECT_DIR$/nestedtouchsample" />
             <option value="$PROJECT_DIR$/toucheventbus" />
+            <option value="$PROJECT_DIR$/touchsample" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

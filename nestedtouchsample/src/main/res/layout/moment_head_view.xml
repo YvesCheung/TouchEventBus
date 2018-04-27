@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/momentItemAvatar"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/avatar" />
+
+    <TextView
+        android:id="@+id/momentItemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/momentItemAvatar"
+        android:layout_marginLeft="9dp"
+        android:layout_toRightOf="@+id/momentItemAvatar"
+        android:ellipsize="end"
+        android:maxEms="6"
+        android:singleLine="true"
+        android:text="YvesChueng"
+        android:textColor="#3a3a3a"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/momentItemDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/momentItemAvatar"
+        android:layout_alignLeft="@+id/momentItemName"
+        android:text="刚刚"
+        android:textColor="#999999"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/momentItemContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/momentItemAvatar"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="20dp"
+        android:text="嵌套滑动展示：\n外层是SmartRefreshLayout提供下拉刷新和上拉加载更多的功能。中层是StickNestedLayout提供导航栏吸附顶部的功能。内层是ViewPager中的RecyclerView提供内容列表"
+        android:textColor="#1d1d1d"
+        android:textSize="17sp" />
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_below="@id/momentItemContent"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/mn_qrcode_download_yy" />
+</RelativeLayout>
