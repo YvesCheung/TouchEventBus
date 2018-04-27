@@ -89,6 +89,10 @@ public class TouchEventBus {
 
     /**
      * 获取对应的触摸事件处理器
+     *
+     * @param <VIEW> ui的类型，可以是具体的View或者抽象的接口
+     * @param cls    {@link TouchEventHandler} 的class
+     * @return 该 {@link TouchEventHandler} 的 {@link TouchViewHolder}
      */
     @SuppressWarnings("unchecked")
     @UiThread

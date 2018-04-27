@@ -27,35 +27,23 @@ public abstract class AbstractTouchEventHandler<T> implements TouchEventHandler<
         defineNextHandlers(mHandlers);
     }
 
-    /**
-     * @inheritDoc
-     */
     @Nullable
     @Override
     public List<Class<? extends TouchEventHandler<?, ? extends TouchViewHolder<?>>>> nextHandler() {
         return mHandlers;
     }
 
-    /**
-     * @inheritDoc
-     */
     @NonNull
     @Override
     public TouchViewHolder<T> getViewHolder() {
         return mViewHolder;
     }
 
-    /**
-     * @inheritDoc
-     */
     @Override
     public boolean forceMonitor() {
         return false;
     }
 
-    /**
-     * @inheritDoc
-     */
     @Override
     public boolean onTouch(@NonNull T t, @NonNull MotionEvent e, boolean hasBeenIntercepted) {
         switch (e.getAction()) {
@@ -74,6 +62,8 @@ public abstract class AbstractTouchEventHandler<T> implements TouchEventHandler<
 
     /**
      * 返回当前Handler的名字，用于标志和打印日志
+     *
+     * @return 当前Handler名字，一般是类名
      */
     @NonNull
     protected abstract String name();
@@ -81,7 +71,7 @@ public abstract class AbstractTouchEventHandler<T> implements TouchEventHandler<
     /**
      * {@link #nextHandler()}的另一种实现方式，可以选择这个方法来实现
      *
-     * @param handlers
+     * @param handlers 一个可变的空列表，可以把下层的Handler添加到列表中
      * @see #nextHandler()
      */
     protected void defineNextHandlers(

@@ -32,8 +32,11 @@ public class TouchEventHandlerUtil {
     }
 
     /**
-     * 把触摸事件修正到对应的view上 使{@link MotionEvent#getX()}和{@link MotionEvent#getY()}的相对位置
-     * 是view的相对位置
+     * 把触摸事件修正到对应的view上。使{@link MotionEvent#getX()}和{@link MotionEvent#getY()}的相对位置
+     * 是在view上的相对位置
+     *
+     * @param v     对应的View
+     * @param event 需要修正的触摸事件
      */
     public static void reviseToView(View v, MotionEvent event) {
         int[] location = new int[2];
@@ -43,6 +46,10 @@ public class TouchEventHandlerUtil {
 
     /**
      * 判断触摸事件是否在对应的view上
+     *
+     * @param e 触摸事件
+     * @param v 对应的View
+     * @return true 当且仅当触摸事件e是发生在v上面
      */
     public static boolean isOnView(MotionEvent e, View v) {
         Rect r = new Rect();
@@ -54,6 +61,12 @@ public class TouchEventHandlerUtil {
 
     /**
      * 两点之间的距离
+     *
+     * @param x1 点A的x坐标
+     * @param y1 点A的y坐标
+     * @param x2 点B的x坐标
+     * @param y2 点B的y坐标
+     * @return 点A和点B之间的距离
      */
     public static float distance(float x1, float y1, float x2, float y2) {
         float x = x1 - x2;
@@ -64,7 +77,8 @@ public class TouchEventHandlerUtil {
     /**
      * 计算MotionEvent事件二点间的距离
      *
-     * @return float 二点间的距离
+     * @param event 触摸事件
+     * @return 二点间的距离。-1表示该触摸只有一个手指
      */
     public static float spacing(MotionEvent event) {
         if (event.getPointerCount() >= 2) {
@@ -76,7 +90,8 @@ public class TouchEventHandlerUtil {
     /**
      * 如果是多点触摸，只保留一只手指的触摸事件。用于想用多指操作来触发Android设计给单指使用的View
      *
-     * @param origin 原触摸事件
+     * @param origin   原触摸事件
+     * @param newEvent 只保留一只手指的新触摸事件回调
      */
     public static void removePointers(MotionEvent origin, Consumer<MotionEvent> newEvent) {
         int action;
@@ -98,6 +113,7 @@ public class TouchEventHandlerUtil {
     }
 
     /**
+     * copy from {@link MotionEvent}
      * Returns a string that represents the symbolic name of the specified unmasked action
      * such as "ACTION_DOWN", "ACTION_POINTER_DOWN(3)" or an equivalent numeric constant
      * such as "35" if unknown.
