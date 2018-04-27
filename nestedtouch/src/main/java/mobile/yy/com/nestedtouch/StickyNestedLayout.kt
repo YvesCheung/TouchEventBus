@@ -281,7 +281,7 @@ class StickyNestedLayout : LinearLayout,
                 lastY = ev.y
                 lastX = ev.x
                 verticalScroll = false
-                isInHeadView = ev.y < headView.measuredHeight - scrollY
+                isInHeadView = ev.y < headView.measuredHeight + navView.measuredHeight - scrollY
                 if (isInHeadView) { //在头部View上的滑动才需要处理，其他地方的手势由<嵌套滑动部分>处理
                     startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL or ViewCompat.SCROLL_AXIS_HORIZONTAL)
                 }
