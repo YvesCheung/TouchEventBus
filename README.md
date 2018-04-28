@@ -191,18 +191,23 @@ ui的层级：Activity -> 背景图 -> 侧边面板 -> 选项卡 -> 文本框
 
 ## 配置
 
-```groovy
-allprojects {
-    repositories {
-	    ...
-		maven { url 'https://jitpack.io' }
-	}
-}
+1. 在项目 build.gradle 添加仓库地址
 
-dependencies {
-    compile 'com.github.YvesCheung.TouchEventBus:toucheventbus:1.4.3'
-}
-```
+    ```groovy
+    allprojects {
+        repositories {
+            maven { url 'https://jitpack.io' }
+    	}
+    }
+    ```
+
+2. 对应模块添加依赖
+
+    ```groovy
+    dependencies {
+        compile 'com.github.YvesCheung.TouchEventBus:toucheventbus:1.4.3'
+    }
+    ```
 
 ## 许可证
 
