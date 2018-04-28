@@ -14,8 +14,11 @@ import mobile.yy.com.toucheventbus.AttachToViewTouchEventHandler
 class SlidingTabTouchHandler : AttachToViewTouchEventHandler<PagerSlidingTabStrip>() {
 
     override fun onTouch(v: PagerSlidingTabStrip, e: MotionEvent, hasBeenIntercepted: Boolean, insideView: Boolean): Boolean {
-        return v.dispatchTouchEvent(e)
+        v.dispatchTouchEvent(e)
+        return false
     }
+
+    override fun nextHandler() = listOf(TabTouchHandler::class.java)
 
     override fun name() = "SlidingTabTouchHandler"
 }

@@ -23,7 +23,7 @@ class SubTabPresenter(subTabBiz: Int, repo: TabRepo) {
 
     fun setTextSize(textSize: Float) {
         var size = textSize
-        if (size > 150f) size = 150f
+        if (size > 200f) size = 200f
         else if (size < 30f) size = 30f
         subTab.textSize = size
         onTextSizeChange.onNext(size)

@@ -2,9 +2,7 @@ package mobile.yy.com.touchsample.touch
 
 import android.view.MotionEvent
 import mobile.yy.com.toucheventbus.AbstractTouchEventHandler
-import mobile.yy.com.toucheventbus.TouchEventHandler
 import mobile.yy.com.toucheventbus.TouchEventHandlerUtil.spacing
-import mobile.yy.com.toucheventbus.TouchViewHolder
 import mobile.yy.com.touchsample.ui.ZoomUi
 
 /**
@@ -52,11 +50,11 @@ class ZoomTextTouchHandler : AbstractTouchEventHandler<ZoomUi>() {
         return zoom
     }
 
-    override fun defineNextHandlers(handlers: MutableList<Class<out TouchEventHandler<*, out TouchViewHolder<*>>>>) {
-        handlers.add(SlidingTabTouchHandler::class.java)
-        handlers.add(TabTouchHandler::class.java)
-        handlers.add(BackgroundImageTouchHandler::class.java)
-    }
+    override fun nextHandler() = listOf(
+            SlidingTabTouchHandler::class.java,
+            TabTouchHandler::class.java,
+            BackgroundImageTouchHandler::class.java
+    )
 
     override fun name() = "ZoomTextTouchHandler"
 }
