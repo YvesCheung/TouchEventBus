@@ -1,10 +1,12 @@
 # 滑动冲突解决方案
 
+标签（空格分隔）： TouchEventBus TouchEvent Touch NestedScrolling
+
 ---
 # 非嵌套滑动
 
 Android原生的触摸事件分发总是从父布局开始分发，从最顶层的子View开始处理，这种特性有时候会限制了我们一些很复杂的交互设计。
-``TouchEventBus`` 致力于解决非嵌套的滑动冲突，比如多个 **在同一层级** 的``Fragment`` 对触摸事件的处理。触摸事件会先到达顶层 ``Fragment`` 的 ``onTouch`` 方法，然后逐层判断是否消费，在都不消费的情况下才到底层的 ``Fragment`` 。而且这些层级互不嵌套，没有形成parent和child的关系，意味着想通过 ``onInterceptTouchEvent`` 或者 ``requestDisallowInterceptTouchEvent`` 方法来调整事件分发都是不可能的。
+``TouchEventBus`` 致力于解决非嵌套的滑动冲突，比如多个 **在同一层级** 的``Fragment`` 对触摸事件的处理：触摸事件会先到达顶层 ``Fragment`` 的 ``onTouch`` 方法，然后逐层判断是否消费，在都不消费的情况下才到达底层的 ``Fragment`` 。而且这些层级互不嵌套，没有形成 parent 和 child 的关系，意味着想通过 ``onInterceptTouchEvent()`` 或者 ``requestDisallowInterceptTouchEvent()`` 方法来调整事件分发都是不可能的。
 
 ## 同级视图的触摸事件
 
@@ -27,7 +29,7 @@ Android原生的触摸事件分发总是从父布局开始分发，从最顶层�
 
 左边的是View的层级，上层是 ``ViewPager`` 以及上面的View，下面是显示视频流的 ``Fragment``。右边是触摸事件处理的层级，双指缩放/View点击/聚焦点击需要在 ``ViewPager``上面，否则都会被 ``ViewPager`` 消费掉，但是 ``ViewPager`` 的View层级又比视频 ``Fragment`` 要高。这就是非嵌套的滑动冲突的核心矛盾：
 
->> **业务逻辑的层级** 与 **用户看到的UI层级** 顺序不一致
+> **业务逻辑的层级** 与 **用户看到的UI层级** 顺序不一致
 
 ## 对触摸事件的重新分发
 
@@ -131,7 +133,98 @@ public class MobileLiveVideoComponent extends Fragment implements CameraClickVie
 
 当用户对ui的进行手势操作时，``MotionEvent`` 就会沿着 ``TouchEventBus`` 里面的顺序进行分发。如果在 **CameraClickHandler** 之前没有别的 Handler 把事件消费掉，那么就能在 ``onTouch`` 方法进行处理，然后在ui有聚焦的响应。
 
+## 事件分发顺序
+
+多个 ``TouchEventHandler`` 之间需要定义一个分发的顺序，最先接收到触摸事件的 Handler 可以拦截后面的 Handler。在顺序的定义上，很难固定一条绝对的分发路线，因为随着直播间模版的切换，业务的顺序可能会产生变化。
+所以 ``TouchEventBus`` 使用相对的顺序定义。每个 Handler 可以决定要拦截哪些其他的 Handler。比如要把 **CameraClickHandler** 排在其他几个Handler前面：
+
+```Java
+public class CameraClickHandler extends AbstractTouchEventHandler<CameraClickView> {
+    //...
+
+    @Override
+    public boolean onTouch(@NonNull CameraClickView v, MotionEvent e, boolean hasBeenIntercepted) {
+        //...
+    }
+
+    /**
+     * 定义哪些Handler需要排在我的后面
+     **/
+    @Override
+    protected void defineNextHandlers(@NonNull List<Class<? extends TouchEventHandler<?, ? extends TouchViewHolder<?>>>> handlers) {
+        //下面的Handler都会在CameraClickHandler后面，但他们之间的顺序还未定义
+        handlers.add(CameraZoomHandler.class);
+        handlers.add(MediaMultiTouchHandler.class);
+        handlers.add(PreviewSlideHandler.class);
+        handlers.add(VideoControlTouchEventHandler.class);
+    }
+}
+```
+
+每个 Handler 都会指定排在自己后面的 Handler，就会形成一张图。通过拓扑排序我们就可以动态地获取到一条触摸事件的分发路径。下图的箭头指向 “A->B” 表示A需要排在B的前面：
+
+![拓扑排序][4]
+
+在直播间模版切换的时候，任何一个 Handler 都可以动态地添加到这个图当中，也可以从这个图中随时移除，不会影响其他业务的正常进行。
+
+## 嵌套的视图用 Android 系统的触摸分发
+
+互不嵌套的 ``Fragment`` 层级才需要使用 ``TouchEventBus``，``Fragment`` 内部用 Android 默认的触摸事件分发。如下图：红色箭头部分为 ``TouchEventBus`` 的分发，按 Handler 的拓扑顺序进行逐层调用。蓝色箭头部分为 ``Fragment`` 内部 ViewTree 的分发，完全按照 Android 系统的分发顺序分发，即从父布局向子视图分发，子视图向父布局逐层决定是否消费。
+
+![触摸事件分发][5]
+
+## 使用例子
+
+运行本工程的 **TouchSample** 模块，是一个使用 ``TouchEventBus`` 的简单Demo。
+
+![TouchSample][6]
+
+- 单指左右滑动切换选项卡
+- 双指缩放中间的"Tab%_subTab%"文本框
+- 双指左右滑动切换背景图
+- 滑动屏幕左侧拉出侧边面板
+
+ui的层级：Activity -> 背景图 -> 侧边面板 -> 选项卡 -> 文本框
+触摸处理的顺序：侧边面板 -> 文本缩放 -> 背景图滑动 -> 底部导航点击 -> 选项卡滑动
+
+> 这里还做了一个操作是让底部导航点击不消费触摸事件，所以你可以在底部的导航栏区域上左右滑动，切换的是一级Tab。而在背景图区域左右滑动，切换的是二级Tab。
+
+## 配置
+
+```groovy
+allprojects {
+    repositories {
+	    ...
+		maven { url 'https://jitpack.io' }
+	}
+}
+
+dependencies {
+    compile 'com.github.YvesCheung.TouchEventBus:toucheventbus:1.4.3'
+}
+```
+
+## 许可证
+
+    Copyright 2018 YvesCheung
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+   
+
 
   [1]: https://github.com/YvesCheung/TouchEventBus/blob/master/img/touchEventBusInYYPreview.gif
   [2]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/touchOrder.png
   [3]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/TouchEventBus.png
+  [4]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/TopoSort.png
+  [5]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/dispatch.png
+  [6]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/demoPreview.gif
