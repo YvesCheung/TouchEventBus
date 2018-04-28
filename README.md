@@ -1,12 +1,11 @@
 # 滑动冲突解决方案
 
-标签（空格分隔）： TouchEventBus TouchEvent Touch NestedScrolling
-
 ---
 # 非嵌套滑动
 
-Android原生的触摸事件分发总是从父布局开始分发，从最顶层的子View开始处理，这种特性有时候会限制了我们一些很复杂的交互设计。
-``TouchEventBus`` 致力于解决非嵌套的滑动冲突，比如多个 **在同一层级** 的``Fragment`` 对触摸事件的处理：触摸事件会先到达顶层 ``Fragment`` 的 ``onTouch`` 方法，然后逐层判断是否消费，在都不消费的情况下才到达底层的 ``Fragment`` 。而且这些层级互不嵌套，没有形成 parent 和 child 的关系，意味着想通过 ``onInterceptTouchEvent()`` 或者 ``requestDisallowInterceptTouchEvent()`` 方法来调整事件分发都是不可能的。
+> Android 系统的触摸事件分发总是从父布局开始分发，从最顶层的子 View 开始处理，这种特性有时候会限制了我们一些很复杂的交互设计。
+
+> **``TouchEventBus``** 致力于解决非嵌套的滑动冲突，比如多个 **在同一层级** 的``Fragment`` 对触摸事件的处理：触摸事件会先到达顶层 ``Fragment`` 的 ``onTouch`` 方法，然后逐层判断是否消费，在都不消费的情况下才到达底层的 ``Fragment`` 。而且这些层级互不嵌套，没有形成 parent 和 child 的关系，意味着想通过 ``onInterceptTouchEvent()`` 或者 ``requestDisallowInterceptTouchEvent()`` 方法来调整事件分发都是不可能的。 :full_moon_with_face:
 
 ## 同级视图的触摸事件
 
@@ -27,9 +26,9 @@ Android原生的触摸事件分发总是从父布局开始分发，从最顶层�
 
 ![处理顺序][2]
 
-左边的是View的层级，上层是 ``ViewPager`` 以及上面的View，下面是显示视频流的 ``Fragment``。右边是触摸事件处理的层级，双指缩放/View点击/聚焦点击需要在 ``ViewPager``上面，否则都会被 ``ViewPager`` 消费掉，但是 ``ViewPager`` 的View层级又比视频 ``Fragment`` 要高。这就是非嵌套的滑动冲突的核心矛盾：
+图左侧是 UI 的层级，上层是一些按钮控件和 ``ViewPager`` ，下层是视频流展示的 ``Fragment``。右边是触摸事件处理的层级，双指缩放/View点击/聚焦点击需要在 ``ViewPager``上面，否则都会被 ``ViewPager`` 消费掉，但是 ``ViewPager`` 的 UI 层级又比视频的 ``Fragment`` 要高。这就是非嵌套的滑动冲突的核心矛盾：
 
-> **业务逻辑的层级** 与 **用户看到的UI层级** 顺序不一致
+> **业务逻辑的层级** 与 **用户看到的UI层级** 不一致
 
 ## 对触摸事件的重新分发
 
@@ -39,9 +38,9 @@ Android原生的触摸事件分发总是从父布局开始分发，从最顶层�
 
 ![TouchEventBus重新分发触摸事件][3]
 
-每个手势的处理就是一个 ``TouchEventHandler``，比如镜头的缩放是 **CameraZoomHandler** ，镜头的聚焦点击是 **CameraClickHandler** ，``ViewPager`` 滑动是 **PreviewSlideHandler** ，然后重新为这些 Handler 作一个排序，按照业务的需要来传递 ``MotionEvent`` 。然后 ``TouchEventHandler`` 需要和ui对应起来，通过Handler的 ``attach`` / ``dettach`` 方法来指定对应的ui。而ui可以是一个具体的 ``Fragment``，也可以是一个抽象的接口，代表一个对触摸事件作出响应的业务。
+每个手势的处理就是一个 ``TouchEventHandler``，比如镜头的缩放是 **CameraZoomHandler** ，镜头的聚焦点击是 **CameraClickHandler** ，``ViewPager`` 滑动是 **PreviewSlideHandler** ，然后为这些 Handler 重新排序，按照业务的需要来传递 ``MotionEvent`` 。然后是 ``TouchEventHandler`` 和ui的对应关系：通过Handler的 ``attach`` / ``dettach`` 方法来绑定/解绑对应的 ui 。而 ui 可以是一个具体的 ``Fragment``，也可以是一个抽象的接口，一个对触摸事件作出响应的业务。
 
-比如在开播预览页的聚焦点击处理，先是定义ui的接口：
+比如开播预览页的聚焦点击处理，先是定义ui的接口：
 
 ```Java
 public interface CameraClickView {
@@ -131,11 +130,11 @@ public class MobileLiveVideoComponent extends Fragment implements CameraClickVie
 }
 ```
 
-当用户对ui的进行手势操作时，``MotionEvent`` 就会沿着 ``TouchEventBus`` 里面的顺序进行分发。如果在 **CameraClickHandler** 之前没有别的 Handler 把事件消费掉，那么就能在 ``onTouch`` 方法进行处理，然后在ui有聚焦的响应。
+当用户对ui的进行手势操作时，``MotionEvent`` 就会沿着 ``TouchEventBus`` 里面的顺序进行分发。如果在 **CameraClickHandler** 之前没有别的 Handler 把事件消费掉，那么就能在 ``onTouch`` 方法进行处理，然后在 ui 作出响应。
 
-## 事件分发顺序
+## 事件的分发顺序
 
-多个 ``TouchEventHandler`` 之间需要定义一个分发的顺序，最先接收到触摸事件的 Handler 可以拦截后面的 Handler。在顺序的定义上，很难固定一条绝对的分发路线，因为随着直播间模版的切换，业务的顺序可能会产生变化。
+多个 ``TouchEventHandler`` 之间需要定义一个分发的顺序，最先接收到触摸事件的 Handler 可以拦截后面的 Handler。在顺序的定义上，很难固定一条绝对的分发路线，因为随着直播间模版的切换，``Fragment`` 的层级可能会产生变化。
 所以 ``TouchEventBus`` 使用相对的顺序定义。每个 Handler 可以决定要拦截哪些其他的 Handler。比如要把 **CameraClickHandler** 排在其他几个Handler前面：
 
 ```Java
@@ -161,7 +160,7 @@ public class CameraClickHandler extends AbstractTouchEventHandler<CameraClickVie
 }
 ```
 
-每个 Handler 都会指定排在自己后面的 Handler，就会形成一张图。通过拓扑排序我们就可以动态地获取到一条触摸事件的分发路径。下图的箭头指向 “A->B” 表示A需要排在B的前面：
+每个 Handler 都会指定排在自己后面的 Handler，从而形成一张图。通过拓扑排序我们就能动态地获得一条分发路径。下图的箭头指向 “A->B” 表示A需要排在B的前面：
 
 ![拓扑排序][4]
 
@@ -169,13 +168,13 @@ public class CameraClickHandler extends AbstractTouchEventHandler<CameraClickVie
 
 ## 嵌套的视图用 Android 系统的触摸分发
 
-互不嵌套的 ``Fragment`` 层级才需要使用 ``TouchEventBus``，``Fragment`` 内部用 Android 默认的触摸事件分发。如下图：红色箭头部分为 ``TouchEventBus`` 的分发，按 Handler 的拓扑顺序进行逐层调用。蓝色箭头部分为 ``Fragment`` 内部 ViewTree 的分发，完全按照 Android 系统的分发顺序分发，即从父布局向子视图分发，子视图向父布局逐层决定是否消费。
+互不嵌套的 ``Fragment`` 层级才需要使用 ``TouchEventBus``，``Fragment`` 内部用 Android 默认的触摸事件分发。如下图：红色箭头部分为 ``TouchEventBus`` 的分发，按 Handler 的拓扑顺序进行逐层调用。蓝色箭头部分为 ``Fragment`` 内部 ViewTree 的分发，完全依照 Android 系统的分发顺序，即从父布局向子视图分发，子视图向父布局逐层决定是否消费。
 
 ![触摸事件分发][5]
 
 ## 使用例子
 
-运行本工程的 **TouchSample** 模块，是一个使用 ``TouchEventBus`` 的简单Demo。
+运行本工程的 ***TouchSample*** 模块，是一个使用 ``TouchEventBus`` 的简单 Demo 。
 
 ![TouchSample][6]
 
