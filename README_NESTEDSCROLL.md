@@ -90,7 +90,7 @@ UI 层级如下：
     limitations under the License.
 
 
-  [1]: https://github.com/YvesCheung/TouchEventBus
+  [1]: https://github.com/YvesCheung/TouchEventBus/blob/master/README.md
   [2]: https://developer.android.com/reference/android/support/v4/view/NestedScrollingParent
   [3]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/nestedScrollPreview.gif
   [4]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/stickNestedLayout.png
