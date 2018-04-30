@@ -1,7 +1,7 @@
 # 滑动冲突解决方案
 
 ---
-# 非嵌套滑动
+# 非嵌套滑动  |  [嵌套滑动][1]
 
 > Android 系统的触摸事件分发总是从父布局开始分发，从最顶层的子 View 开始处理，这种特性有时候会限制了我们一些很复杂的交互设计。
 > 
@@ -11,7 +11,7 @@
 
 下面是手机YY的开播预览页：
 
-![YY预览页][1]
+![YY预览页][2]
 
 在这个页面上有很多对触摸事件的处理，包括且不限于：
 
@@ -24,7 +24,7 @@
 
 从视觉上可以判断出View Tree的层级以及对触摸处理的层级：
 
-![处理顺序][2]
+![处理顺序][3]
 
 图左侧是 UI 的层级，上层是一些按钮控件和 ``ViewPager`` ，下层是视频流展示的 ``Fragment``。右边是触摸事件处理的层级，双指缩放/View点击/聚焦点击需要在 ``ViewPager``上面，否则都会被 ``ViewPager`` 消费掉，但是 ``ViewPager`` 的 UI 层级又比视频的 ``Fragment`` 要高。这就是非嵌套的滑动冲突的核心矛盾：
 
@@ -36,7 +36,7 @@
 
 ``TouchEventBus`` 用于这种场景下对触摸事件进行重新分发，我们可以随心所欲地决定业务逻辑的层级顺序。
 
-![TouchEventBus重新分发触摸事件][3]
+![TouchEventBus重新分发触摸事件][4]
 
 每个手势的处理就是一个 ``TouchEventHandler``，比如镜头的缩放是 **CameraZoomHandler** ，镜头的聚焦点击是 **CameraClickHandler** ，``ViewPager`` 滑动是 **PreviewSlideHandler** ，然后为这些 Handler 重新排序，按照业务的需要来传递 ``MotionEvent`` 。然后是 ``TouchEventHandler`` 和ui的对应关系：通过Handler的 ``attach`` / ``dettach`` 方法来绑定/解绑对应的 ui 。而 ui 可以是一个具体的 ``Fragment``，也可以是一个抽象的接口，一个对触摸事件作出响应的业务。
 
@@ -162,7 +162,7 @@ public class CameraClickHandler extends AbstractTouchEventHandler<CameraClickVie
 
 每个 Handler 都会指定排在自己后面的 Handler，从而形成一张图。通过拓扑排序我们就能动态地获得一条分发路径。下图的箭头指向 “A->B” 表示A需要排在B的前面：
 
-![拓扑排序][4]
+![拓扑排序][5]
 
 在直播间模版切换的时候，任何一个 Handler 都可以动态地添加到这个图当中，也可以从这个图中随时移除，不会影响其他业务的正常进行。
 
@@ -170,13 +170,13 @@ public class CameraClickHandler extends AbstractTouchEventHandler<CameraClickVie
 
 互不嵌套的 ``Fragment`` 层级才需要使用 ``TouchEventBus``，``Fragment`` 内部用 Android 默认的触摸事件分发。如下图：红色箭头部分为 ``TouchEventBus`` 的分发，按 Handler 的拓扑顺序进行逐层调用。蓝色箭头部分为 ``Fragment`` 内部 ViewTree 的分发，完全依照 Android 系统的分发顺序，即从父布局向子视图分发，子视图向父布局逐层决定是否消费。
 
-![触摸事件分发][5]
+![触摸事件分发][6]
 
 ## 使用例子
 
 运行本工程的 ***TouchSample*** 模块，是一个使用 ``TouchEventBus`` 的简单 Demo 。
 
-![TouchSample][6]
+![TouchSample][7]
 
 - 单指左右滑动切换选项卡
 - 双指缩放中间的"Tab%_subTab%"文本框
@@ -227,9 +227,10 @@ ui的层级：Activity -> 背景图 -> 侧边面板 -> 选项卡 -> 文本框
    
 
 
-  [1]: https://github.com/YvesCheung/TouchEventBus/blob/master/img/touchEventBusInYYPreview.gif
-  [2]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/touchOrder.png
-  [3]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/TouchEventBus.png
-  [4]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/TopoSort.png
-  [5]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/dispatch.png
-  [6]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/demoPreview.gif
+  [1]: https://github.com/YvesCheung/TouchEventBus/blob/master/README_NESTEDSCROLL.md
+  [2]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/touchEventBusInYYPreview.gif
+  [3]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/touchOrder.png
+  [4]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/TouchEventBus.png
+  [5]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/TopoSort.png
+  [6]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/dispatch.png
+  [7]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/demoPreview.gif
