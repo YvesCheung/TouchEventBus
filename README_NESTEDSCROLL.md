@@ -51,7 +51,7 @@ UI 层级如下：
 
 > 其中 *headView* / *navView* / *contentView* 的id必须为 **stickyHeadView** / **stickyNavView** / **stickyContentView** 
 
-可以通过运行工程 *nestedtouchsample* 查看具体代码。例子中涉及的其他第三方库有下拉刷新控件 [SmartRefreshLayout][5] 和导航栏 [PagerSlidingTabStrip][6] ，部分参考 [StickNavLayout][6]
+可以通过运行工程 *nestedtouchsample* 查看具体代码。例子中涉及的其他第三方库有下拉刷新控件 [SmartRefreshLayout][5] 和导航栏 [PagerSlidingTabStrip][6] ，部分参考 [StickNavLayout][7]
 
 ## 配置
 
