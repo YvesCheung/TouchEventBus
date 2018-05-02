@@ -96,4 +96,4 @@ UI 层级如下：
   [4]: https://raw.githubusercontent.com/YvesCheung/TouchEventBus/master/img/stickNestedLayout.png
   [5]: https://github.com/scwang90/SmartRefreshLayout
   [6]: https://github.com/ta893115871/PagerSlidingTabStrip
-  [6]: https://github.com/hongyangAndroid/Android-StickyNavLayout
+  [7]: https://github.com/hongyangAndroid/Android-StickyNavLayout
