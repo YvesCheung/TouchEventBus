@@ -4,17 +4,37 @@ import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
+import android.view.ViewTreeObserver
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import kotlinx.android.synthetic.main.activity_main.*
+import mobile.yy.com.nestedtouch.StickyNestedLayout
 
 class MainActivity : AppCompatActivity() {
+
+    private val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            titleBar.viewTreeObserver.removeGlobalOnLayoutListener(this)
+            stickyNestedLayout.stickyOffsetHeight = titleBar.height
+
+            val headViewHeight = (stickyNestedLayout.headViewHeight - titleBar.height).toFloat()
+            stickyNestedLayout.addOnScrollListener(object : StickyNestedLayout.OnScrollListener {
+                override fun onScroll(view: StickyNestedLayout, scrollX: Int, scrollY: Int) {
+                    titleBar.alpha = 1f - (headViewHeight - scrollY) / headViewHeight
+                }
+            })
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         refreshLayout.setRefreshHeader(ClassicsHeader(this))
+        refreshLayout.isEnableLoadMore = false
         refreshLayout.setEnableNestedScroll(true)
+        titleBar.alpha = 0f
+        titleBar.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+        stickyNestedLayout.stickyOffsetHeight = 1200
         stickyContentView.adapter = MainAdapter(supportFragmentManager)
         stickyNavView.setViewPager(stickyContentView)
     }
