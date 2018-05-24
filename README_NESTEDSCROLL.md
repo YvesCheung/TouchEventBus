@@ -55,6 +55,8 @@ UI 层级如下：
 
 ## 配置
 
+最新版本： [![](https://jitpack.io/v/YvesCheung/TouchEventBus.svg)](https://jitpack.io/#YvesCheung/TouchEventBus)
+
 1. 项目build.gradle添加
 
     ```Groovy
@@ -69,7 +71,7 @@ UI 层级如下：
 
     ```Groovy
     dependencies {
-        compile 'com.github.YvesCheung.TouchEventBus:nestedtouch:1.4.3'
+        compile 'com.github.YvesCheung.TouchEventBus:nestedtouch:x.y.z'
     }
     ```
     
