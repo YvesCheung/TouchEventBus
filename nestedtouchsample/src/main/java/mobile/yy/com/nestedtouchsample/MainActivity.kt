@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
 import android.view.ViewTreeObserver
+import com.scwang.smartrefresh.layout.footer.ClassicsFooter
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import kotlinx.android.synthetic.main.activity_main.*
 import mobile.yy.com.nestedtouch.StickyNestedLayout
@@ -30,11 +31,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         refreshLayout.setRefreshHeader(ClassicsHeader(this))
-        refreshLayout.isEnableLoadMore = false
+        refreshLayout.setRefreshFooter(ClassicsFooter(this))
         refreshLayout.setEnableNestedScroll(true)
         titleBar.alpha = 0f
         titleBar.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
-        stickyNestedLayout.stickyOffsetHeight = 1200
         stickyContentView.adapter = MainAdapter(supportFragmentManager)
         stickyNavView.setViewPager(stickyContentView)
     }

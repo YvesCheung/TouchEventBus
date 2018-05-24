@@ -19,9 +19,7 @@ import java.util.*
  */
 class DetailFragment : Fragment() {
 
-    private val random = Random()
-
-    private val randomNumber get() = Array(30) { random.nextInt(9999999).toString() }
+    private val randomNumber get() = Array(30) { idx -> "${idx}000000" }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return RecyclerView(context).apply {

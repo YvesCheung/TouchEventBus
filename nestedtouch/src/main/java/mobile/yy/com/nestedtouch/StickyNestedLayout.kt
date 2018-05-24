@@ -72,7 +72,7 @@ class StickyNestedLayout : LinearLayout,
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         headView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
         val params = contentView.layoutParams
-        params.height = measuredHeight
+        params.height = measuredHeight - navViewHeight - stickyOffsetHeight
         setMeasuredDimension(measuredWidth,
                 headViewHeight + navViewHeight + contentViewHeight)
     }
