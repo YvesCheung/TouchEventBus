@@ -70,11 +70,11 @@ class StickyNestedLayout : LinearLayout,
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        headView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
-        val params = contentView.layoutParams
-        params.height = measuredHeight - navViewHeight - stickyOffsetHeight
-        setMeasuredDimension(measuredWidth,
-                headViewHeight + navViewHeight + contentViewHeight)
+        headView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(
+                0, View.MeasureSpec.UNSPECIFIED))
+        contentView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(
+                measuredHeight - navViewHeight - stickyOffsetHeight, View.MeasureSpec.AT_MOST))
+        setMeasuredDimension(measuredWidth, measuredHeight)
     }
 
     //</editor-fold desc="基础布局部分">

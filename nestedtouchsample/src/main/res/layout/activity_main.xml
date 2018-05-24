@@ -5,10 +5,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/bottomDecoration"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="底部装饰"
+        android:textColor="#ffffff"
+        android:textSize="18sp" />
+
     <com.scwang.smartrefresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomDecoration">
 
         <mobile.yy.com.nestedtouch.StickyNestedLayout
             android:id="@+id/stickyNestedLayout"
