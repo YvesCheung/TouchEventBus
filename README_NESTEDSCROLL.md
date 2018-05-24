@@ -71,10 +71,8 @@ UI 层级如下：
 
     ```Groovy
     dependencies {
-        compile 'com.github.YvesCheung.TouchEventBus:nestedtouch:x.y.z'  
-
+    	compile 'com.github.YvesCheung.TouchEventBus:nestedtouch:x.y.z'
     }
-    
     ```
     
 ## 许可证
