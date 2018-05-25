@@ -289,7 +289,6 @@ class StickyNestedLayout : LinearLayout,
     private var lastX = 0f
     private var lastY = 0f
     private var verticalScroll = false
-    private var isInHeadView = false
     private val mVelocityTracker by lazy { VelocityTracker.obtain() }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
@@ -300,13 +299,10 @@ class StickyNestedLayout : LinearLayout,
                 lastY = ev.y
                 lastX = ev.x
                 verticalScroll = false
-                isInHeadView = ev.y < headViewHeight + navViewHeight - scrollY
-//                if (isInHeadView) { //在头部View上的滑动才需要处理，其他地方的手势由<嵌套滑动部分>处理
-//                    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL or ViewCompat.SCROLL_AXIS_HORIZONTAL)
-//                }
             }
             MotionEvent.ACTION_MOVE -> {
 
+                //从当前View开始触发嵌套滑动
                 if (!isNestedScrollingStartedByThisView && !isNestedScrolling) {
                     log { "startNestedScroll" }
                     startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL
