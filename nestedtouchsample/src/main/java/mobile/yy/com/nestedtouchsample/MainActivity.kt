@@ -42,7 +42,9 @@ class MainActivity : AppCompatActivity() {
 
 class MainAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
-    override fun getItem(position: Int) = DetailFragment()
+    override fun getItem(position: Int) =
+            if (position == 2) BlankFragment()
+            else DetailFragment()
 
     override fun getCount() = 3
 

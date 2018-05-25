@@ -34,6 +34,15 @@ class StickyNestedLayout : LinearLayout,
         private const val DEFAULT_DURATION = 250L //惯性下继续滑行的时间
     }
 
+    /**
+     * 是否正在嵌套滑动
+     */
+    private var isNestedScrolling = false
+    /**
+     * 是否由当前View主动发起的嵌套滑动
+     */
+    private var isNestedScrollingStartedByThisView = false
+
     private lateinit var headView: View
     private lateinit var navView: View
     private lateinit var contentView: View
@@ -45,7 +54,7 @@ class StickyNestedLayout : LinearLayout,
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             : super(context, attrs, defStyleAttr)
 
-    private fun log(str: () -> Any?) = Log.v("StickyNestedLayout", str()?.toString() ?: "null")
+    private fun log(str: () -> Any?) = Log.d("StickyNestedLayout", str()?.toString() ?: "null")
 
     init {
         orientation = VERTICAL
@@ -117,7 +126,6 @@ class StickyNestedLayout : LinearLayout,
             else -> scrollTo(dx, dy)
         }
         scrollListeners.forEach { it.onScroll(this, scrollX, scrollY) }
-        log { "scrollTo ($dx,$dy) unconsumed = ${unconsumed?.get(0)},${unconsumed?.get(1)}" }
     }
 
     private var valueAnimator: ValueAnimator? = null
@@ -133,6 +141,9 @@ class StickyNestedLayout : LinearLayout,
         fun end() {
             //自己结束消费手势，交给parent消费
             dispatchNestedFling(0f, velocityY, true)
+            log { "stopNestedScroll" }
+            isNestedScrolling = false
+            isNestedScrollingStartedByThisView = false
             stopNestedScroll()
         }
 
@@ -175,6 +186,8 @@ class StickyNestedLayout : LinearLayout,
     //child告诉我要开始嵌套滑动
     override fun onStartNestedScroll(child: View, target: View, nestedScrollAxes: Int): Boolean {
         log { "startNestedScroll" }
+        isNestedScrollingStartedByThisView = false
+        isNestedScrolling = true
         startNestedScroll(nestedScrollAxes or ViewCompat.SCROLL_AXIS_VERTICAL) //开始通知parent的嵌套滑动
         return true
     }
@@ -182,6 +195,8 @@ class StickyNestedLayout : LinearLayout,
     //child告诉我要停止嵌套滑动
     override fun onStopNestedScroll(child: View) {
         log { "stopNestedScroll $child" }
+        isNestedScrollingStartedByThisView = false
+        isNestedScrolling = false
         stopNestedScroll() //结束parent的嵌套滑动
     }
 
@@ -286,13 +301,20 @@ class StickyNestedLayout : LinearLayout,
                 lastX = ev.x
                 verticalScroll = false
                 isInHeadView = ev.y < headViewHeight + navViewHeight - scrollY
-                if (isInHeadView) { //在头部View上的滑动才需要处理，其他地方的手势由<嵌套滑动部分>处理
-                    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL or ViewCompat.SCROLL_AXIS_HORIZONTAL)
-                }
+//                if (isInHeadView) { //在头部View上的滑动才需要处理，其他地方的手势由<嵌套滑动部分>处理
+//                    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL or ViewCompat.SCROLL_AXIS_HORIZONTAL)
+//                }
             }
             MotionEvent.ACTION_MOVE -> {
 
-                if (isInHeadView) {
+                if (!isNestedScrollingStartedByThisView && !isNestedScrolling) {
+                    log { "startNestedScroll" }
+                    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL
+                            or ViewCompat.SCROLL_AXIS_HORIZONTAL)
+                    isNestedScrollingStartedByThisView = true
+                }
+
+                if (isNestedScrollingStartedByThisView) {
                     val scrollByHuman = -Math.round(ev.y - lastY) //手势产生的距离
                     val consumedByParent = IntArray(2)
                     val offset = IntArray(2)
@@ -311,7 +333,7 @@ class StickyNestedLayout : LinearLayout,
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> { //fliping
 
-                if (isInHeadView) {
+                if (isNestedScrollingStartedByThisView) {
                     //根据当前速度 进行惯性滑行
                     mVelocityTracker.computeCurrentVelocity(1000)
                     val velY = mVelocityTracker.yVelocity
