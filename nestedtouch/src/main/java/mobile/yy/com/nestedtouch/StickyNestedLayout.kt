@@ -5,9 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.support.annotation.MainThread
-import android.support.v4.view.NestedScrollingChild
-import android.support.v4.view.NestedScrollingParent
-import android.support.v4.view.ViewCompat
+import android.support.v4.view.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -27,8 +25,8 @@ import android.widget.LinearLayout
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class StickyNestedLayout : LinearLayout,
-        NestedScrollingChild,
-        NestedScrollingParent {
+        NestedScrollingChild2,
+        NestedScrollingParent2 {
 
     companion object {
         private const val DEFAULT_DURATION = 250L //惯性下继续滑行的时间
@@ -46,6 +44,9 @@ class StickyNestedLayout : LinearLayout,
     private lateinit var headView: View
     private lateinit var navView: View
     private lateinit var contentView: View
+
+    private val childHelper = NestedScrollingChildHelper(this)
+    private val parentHelper = NestedScrollingParentHelper(this)
 
     constructor(context: Context) : super(context)
 
@@ -183,6 +184,72 @@ class StickyNestedLayout : LinearLayout,
 
     //<editor-fold desc="嵌套滑动部分">
 
+    override fun setNestedScrollingEnabled(enabled: Boolean) {
+        childHelper.isNestedScrollingEnabled = enabled
+    }
+
+    override fun hasNestedScrollingParent() = childHelper.hasNestedScrollingParent()
+
+    override fun hasNestedScrollingParent(type: Int) = childHelper.hasNestedScrollingParent(type)
+
+    override fun isNestedScrollingEnabled() = childHelper.isNestedScrollingEnabled
+
+    override fun startNestedScroll(axes: Int) = childHelper.startNestedScroll(axes)
+
+    override fun startNestedScroll(axes: Int, type: Int) = childHelper.startNestedScroll(axes, type)
+
+    override fun stopNestedScroll(type: Int) = childHelper.stopNestedScroll(type)
+
+    override fun stopNestedScroll() = childHelper.stopNestedScroll()
+
+    override fun dispatchNestedScroll(dxConsumed: Int, dyConsumed: Int,
+                                      dxUnconsumed: Int, dyUnconsumed: Int,
+                                      offsetInWindow: IntArray?, type: Int) =
+            childHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed,
+                    dyUnconsumed, offsetInWindow, type)
+
+    override fun dispatchNestedScroll(dxConsumed: Int, dyConsumed: Int,
+                                      dxUnconsumed: Int, dyUnconsumed: Int,
+                                      offsetInWindow: IntArray?) =
+            childHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, offsetInWindow)
+
+    override fun dispatchNestedPreScroll(dx: Int, dy: Int, consumed: IntArray?,
+                                         offsetInWindow: IntArray?, type: Int) =
+            childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type)
+
+    override fun dispatchNestedPreScroll(dx: Int, dy: Int, consumed: IntArray?,
+                                         offsetInWindow: IntArray?) =
+            childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow)
+
+    override fun dispatchNestedFling(velocityX: Float, velocityY: Float, consumed: Boolean) =
+            childHelper.dispatchNestedFling(velocityX, velocityY, consumed)
+
+    override fun dispatchNestedPreFling(velocityX: Float, velocityY: Float) =
+            childHelper.dispatchNestedPreFling(velocityX, velocityY)
+
+    override fun onNestedScrollAccepted(child: View, target: View, axes: Int) =
+            parentHelper.onNestedScrollAccepted(child, target, axes)
+
+    override fun onNestedScrollAccepted(child: View, target: View, axes: Int, type: Int) =
+            parentHelper.onNestedScrollAccepted(child, target, axes, type)
+
+    override fun getNestedScrollAxes() = parentHelper.nestedScrollAxes
+
+    override fun onStopNestedScroll(child: View) = parentHelper.onStopNestedScroll(child)
+
+    override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int) =
+            onStartNestedScroll(child, target, axes)
+
+    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray?, type: Int) {
+        onNestedPreScroll(target, dx, dy, consumed ?: IntArray(2))
+    }
+
+    override fun onNestedScroll(target: View, dxConsumed: Int, dyConsumed: Int,
+                                dxUnconsumed: Int, dyUnconsumed: Int, type: Int) {
+        onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed)
+    }
+
     //child告诉我要开始嵌套滑动
     override fun onStartNestedScroll(child: View, target: View, nestedScrollAxes: Int): Boolean {
         log { "startNestedScroll" }
@@ -193,8 +260,8 @@ class StickyNestedLayout : LinearLayout,
     }
 
     //child告诉我要停止嵌套滑动
-    override fun onStopNestedScroll(child: View) {
-        log { "stopNestedScroll $child" }
+    override fun onStopNestedScroll(target: View, type: Int) {
+        log { "stopNestedScroll $target" }
         isNestedScrollingStartedByThisView = false
         isNestedScrolling = false
         stopNestedScroll() //结束parent的嵌套滑动
