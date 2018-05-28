@@ -27,23 +27,34 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <!--StickyNestedLayout会通过id为 stickyHeadView 来查找子View-->
             <include
                 android:id="@id/stickyHeadView"
-                layout="@layout/moment_head_view" />
+                layout="@layout/moment_head_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
+            <!--StickyNestedLayout会通过id为 stickyNavView 来查找子View-->
+            <!--如果id不是 stickyNavView-->
+            <!--也可以通过contentDescription来指定是 stickyNavView -->
             <com.gxz.PagerSlidingTabStrip
-                android:id="@id/stickyNavView"
+                android:id="@+id/navView"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:background="#ffffff"
+                android:contentDescription="@string/stickyNavView"
                 app:pstsIndicatorColor="@color/colorPrimary"
                 app:pstsShouldExpand="true"
                 app:pstsTextSelectedColor="@color/colorPrimaryDark" />
 
+            <!--StickyNestedLayout会通过id为 stickyContentView 来查找子View-->
+            <!--如果id不是 stickyContentView-->
+            <!--也可以通过contentDescription来指定是 stickyContentView -->
             <android.support.v4.view.ViewPager
-                android:id="@id/stickyContentView"
+                android:id="@+id/contentView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:contentDescription="@string/stickyContentView" />
         </mobile.yy.com.nestedtouch.StickyNestedLayout>
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 

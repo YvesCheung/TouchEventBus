@@ -4,7 +4,9 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
+import android.support.annotation.IdRes
 import android.support.annotation.MainThread
+import android.support.annotation.StringRes
 import android.support.v4.view.*
 import android.util.AttributeSet
 import android.util.Log
@@ -62,20 +64,45 @@ class StickyNestedLayout : LinearLayout,
         isNestedScrollingEnabled = true
     }
 
+    private fun string(@StringRes id: Int): String = context.getString(id)
+
     //<editor-fold desc="基础布局部分">
 
-    //固定id这个是参考张泓洋的StickyNavLayout 如果有更好解耦的办法 就修改掉吧
-    //https://github.com/hongyangAndroid/Android-StickyNavLayout
-    //但是张泓洋的项目不支持触摸headView的滑动，不支持在外面再嵌套一个NestedScrollingParent
     override fun onFinishInflate() {
         super.onFinishInflate()
-        headView = findViewById(R.id.stickyHeadView)
-        navView = findViewById(R.id.stickyNavView)
-        contentView = findViewById(R.id.stickyContentView)
+
+        headView = findChildView(R.id.stickyHeadView, R.string.stickyHeadView,
+                "stickyHeadView")
+        navView = findChildView(R.id.stickyNavView, R.string.stickyNavView,
+                "stickyNavView")
+        contentView = findChildView(R.id.stickyContentView, R.string.stickyContentView,
+                "stickyContentView")
 
         //让headView是可以收触摸事件的 dispatchTouchEvent才能处理滑动的事件
         headView.isFocusable = true
         headView.isClickable = true
+    }
+
+    private fun findChildView(@IdRes id: Int, @StringRes strId: Int, msg: String): View {
+        val viewOptional: View? = findViewById(id)
+        if (viewOptional != null) {
+            return viewOptional
+        } else {
+            val singleViewExpect = ArrayList<View>(1)
+            findViewsWithText(singleViewExpect, string(strId), FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+            return when {
+                singleViewExpect.isEmpty() -> throw StickyNestedLayoutException(
+                        "在StickyNestedLayout中必须要提供一个含有属性 android:id=\"@id/$msg\" 或者" +
+                                "android:contentDescription=\"@string/$msg\" 的子View "
+                )
+                singleViewExpect.size > 1 -> throw StickyNestedLayoutException(
+                        "在StickyNestedLayout中包含了多个含有属性 android:id=\"@id/$msg\" 或者" +
+                                "android:contentDescription=\"@string/$msg\" 的子View，" +
+                                "StickyNestedLayout无法确定应该使用哪一个"
+                )
+                else -> singleViewExpect.first()
+            }
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">nestedTouch</string>
+
+    <string name="stickyHeadView">stickyHeadView</string>
+    <string name="stickyNavView">stickyNavView</string>
+    <string name="stickyContentView">stickyContentView</string>
 </resources>

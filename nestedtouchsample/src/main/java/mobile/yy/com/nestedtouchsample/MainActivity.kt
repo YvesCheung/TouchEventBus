@@ -35,8 +35,8 @@ class MainActivity : AppCompatActivity() {
         refreshLayout.setEnableNestedScroll(true)
         titleBar.alpha = 0f
         titleBar.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
-        stickyContentView.adapter = MainAdapter(supportFragmentManager)
-        stickyNavView.setViewPager(stickyContentView)
+        contentView.adapter = MainAdapter(supportFragmentManager)
+        navView.setViewPager(contentView)
     }
 }
 
