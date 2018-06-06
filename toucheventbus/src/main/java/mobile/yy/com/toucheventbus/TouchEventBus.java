@@ -1,6 +1,9 @@
 package mobile.yy.com.toucheventbus;
 
+import android.app.Activity;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,13 +43,20 @@ public class TouchEventBus {
      * @param parentView 起点接收触摸事件的view。用于对触摸事件的发生坐标进行调整。
      */
     @UiThread
-    public static void dispatchTouchEvent(MotionEvent e, View parentView) {
+    public static boolean dispatchTouchEvent(MotionEvent e, @Nullable View parentView) {
+        if (parentView == null) {
+            throw new IllegalArgumentException("parent view can't be null");
+        }
+        if (e == null) {
+            return false;
+        }
         //开始一串触摸事件
         if (e.getAction() == MotionEvent.ACTION_DOWN) { //获取ViewTree的顺序列表
             orderList = new ArrayList<>(instance().mContainer.getOrderTouchEventHandler());
         }
         //根据parentView修正触摸事件的坐标，处理parentView本身不是全屏的情况
-        e.offsetLocation(parentView.getScrollX() + e.getRawX() - e.getX(), parentView.getScrollY() + e.getRawY() - e.getY());
+        e.offsetLocation(parentView.getScrollX() + e.getRawX() - e.getX(),
+                parentView.getScrollY() + e.getRawY() - e.getY());
         boolean intercepted = false;
         Iterator<TouchEventHandler<?, ? extends TouchViewHolder<?>>> itr = orderList.iterator();
         while (itr.hasNext()) {
@@ -68,9 +78,36 @@ public class TouchEventBus {
             copyEvent.recycle();
         }
         //结束触摸后，清掉orderList防止内存泄漏
-        if (e.getAction() == MotionEvent.ACTION_UP) {
+        if (e.getAction() == MotionEvent.ACTION_UP
+                || e.getAction() == MotionEvent.ACTION_CANCEL) {
             orderList = Collections.emptyList();
         }
+        return intercepted;
+    }
+
+    /**
+     * @see #dispatchTouchEvent(MotionEvent, View)
+     */
+    @UiThread
+    public static boolean dispatchTouchEvent(MotionEvent e, Activity entry) {
+        return dispatchTouchEvent(e, entry.getWindow().getDecorView()
+                .findViewById(android.R.id.content));
+    }
+
+    /**
+     * @see #dispatchTouchEvent(MotionEvent, View)
+     */
+    @UiThread
+    public static boolean dispatchTouchEvent(MotionEvent e, Fragment entry) {
+        return dispatchTouchEvent(e, entry.getView());
+    }
+
+    /**
+     * @see #dispatchTouchEvent(MotionEvent, View)
+     */
+    @UiThread
+    public static boolean dispatchTouchEvent(MotionEvent e, android.app.Fragment entry) {
+        return dispatchTouchEvent(e, entry.getView());
     }
 
     @SuppressWarnings("unchecked")
