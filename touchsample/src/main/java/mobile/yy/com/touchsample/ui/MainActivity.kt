@@ -37,8 +37,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        TouchEventBus.dispatchTouchEvent(ev, mainContainer)
-        return true
+        if (TouchEventBus.dispatchTouchEvent(ev, this)) {
+            return true
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }
 
