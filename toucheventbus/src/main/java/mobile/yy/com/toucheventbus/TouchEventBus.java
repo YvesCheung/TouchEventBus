@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by 张宇(G7428) on 2017/9/1.
+ * Created by 张宇 on 2017/9/1.
  * E-mail: zhangyu4@yy.com
  * YY: 909017428
  * <p>
@@ -39,17 +39,18 @@ public class TouchEventBus {
      * 分发触摸事件的起点。
      * 一般在Activity的dispatchEvent开始分发。一个Activity上只能有一个起点。
      *
-     * @param e          触摸事件
+     * @param event      触摸事件
      * @param parentView 起点接收触摸事件的view。用于对触摸事件的发生坐标进行调整。
      */
     @UiThread
-    public static boolean dispatchTouchEvent(MotionEvent e, @Nullable View parentView) {
+    public static boolean dispatchTouchEvent(MotionEvent event, @Nullable View parentView) {
         if (parentView == null) {
             throw new IllegalArgumentException("parent view can't be null");
         }
-        if (e == null) {
+        if (event == null) {
             return false;
         }
+        MotionEvent e = MotionEvent.obtain(event);
         //开始一串触摸事件
         if (e.getAction() == MotionEvent.ACTION_DOWN) { //获取ViewTree的顺序列表
             orderList = new ArrayList<>(instance().mContainer.getOrderTouchEventHandler());
@@ -66,22 +67,26 @@ public class TouchEventBus {
             //如果确实担心这种情况，就需要在ViewHolder每次遍历时再copy一次
             //如果完全不担心上层Handler修改MotionEvent，可以把下面这句obtain也去掉进一步提高性能
             MotionEvent copyEvent = MotionEvent.obtain(e);
-            if (!intercepted || handler.forceMonitor()) {
-                //上层没拦截 或者 自己死活都要触摸事件
-                intercepted = dispatchInner(handler, intercepted, copyEvent);
-            } else {
-                //已经被拦截，发一个Cancel事件，而且不再参与接下来同一串的触摸事件
-                copyEvent.setAction(MotionEvent.ACTION_CANCEL);
-                dispatchInner(handler, true, copyEvent);
-                itr.remove();
+            try {
+                if (!intercepted || handler.forceMonitor()) {
+                    //上层没拦截 或者 自己死活都要触摸事件
+                    intercepted = dispatchInner(handler, intercepted, copyEvent);
+                } else {
+                    //已经被拦截，发一个Cancel事件，而且不再参与接下来同一串的触摸事件
+                    copyEvent.setAction(MotionEvent.ACTION_CANCEL);
+                    dispatchInner(handler, true, copyEvent);
+                    itr.remove();
+                }
+            } finally {
+                copyEvent.recycle();
             }
-            copyEvent.recycle();
         }
         //结束触摸后，清掉orderList防止内存泄漏
         if (e.getAction() == MotionEvent.ACTION_UP
                 || e.getAction() == MotionEvent.ACTION_CANCEL) {
             orderList = Collections.emptyList();
         }
+        e.recycle();
         return intercepted;
     }
 
@@ -89,8 +94,8 @@ public class TouchEventBus {
      * @see #dispatchTouchEvent(MotionEvent, View)
      */
     @UiThread
-    public static boolean dispatchTouchEvent(MotionEvent e, Activity entry) {
-        return dispatchTouchEvent(e, entry.getWindow().getDecorView()
+    public static boolean dispatchTouchEvent(MotionEvent event, Activity entry) {
+        return dispatchTouchEvent(event, entry.getWindow().getDecorView()
                 .findViewById(android.R.id.content));
     }
 
@@ -98,16 +103,16 @@ public class TouchEventBus {
      * @see #dispatchTouchEvent(MotionEvent, View)
      */
     @UiThread
-    public static boolean dispatchTouchEvent(MotionEvent e, Fragment entry) {
-        return dispatchTouchEvent(e, entry.getView());
+    public static boolean dispatchTouchEvent(MotionEvent event, Fragment entry) {
+        return dispatchTouchEvent(event, entry.getView());
     }
 
     /**
      * @see #dispatchTouchEvent(MotionEvent, View)
      */
     @UiThread
-    public static boolean dispatchTouchEvent(MotionEvent e, android.app.Fragment entry) {
-        return dispatchTouchEvent(e, entry.getView());
+    public static boolean dispatchTouchEvent(MotionEvent event, android.app.Fragment entry) {
+        return dispatchTouchEvent(event, entry.getView());
     }
 
     @SuppressWarnings("unchecked")

@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 import java.util.List;
 
 /**
- * Created by 张宇(G7428) on 2017/9/4.
+ * Created by 张宇 on 2017/9/4.
  * E-mail: zhangyu4@yy.com
  * YY: 909017428
  *

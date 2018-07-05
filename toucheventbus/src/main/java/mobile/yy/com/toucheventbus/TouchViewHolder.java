@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by 张宇(G7428) on 2017/9/8.
+ * Created by 张宇 on 2017/9/8.
  * E-mail: zhangyu4@yy.com
  * YY: 909017428
  */

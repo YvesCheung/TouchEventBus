@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by 张宇(G7428) on 2017/9/19.
+ * Created by 张宇 on 2017/9/19.
  * E-mail: zhangyu4@yy.com
  * YY: 909017428
  * <p>
