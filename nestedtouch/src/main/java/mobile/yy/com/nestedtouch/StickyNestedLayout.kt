@@ -7,7 +7,11 @@ import android.content.Context
 import android.support.annotation.IdRes
 import android.support.annotation.MainThread
 import android.support.annotation.StringRes
-import android.support.v4.view.*
+import android.support.v4.view.NestedScrollingChild2
+import android.support.v4.view.NestedScrollingChildHelper
+import android.support.v4.view.NestedScrollingParent2
+import android.support.v4.view.NestedScrollingParentHelper
+import android.support.v4.view.ViewCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -27,11 +31,13 @@ import android.widget.LinearLayout
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class StickyNestedLayout : LinearLayout,
-        NestedScrollingChild2,
-        NestedScrollingParent2 {
+    NestedScrollingChild2,
+    NestedScrollingParent2 {
 
     companion object {
         private const val DEFAULT_DURATION = 250L //惯性下继续滑行的时间
+
+        private const val DEBUG = false
     }
 
     /**
@@ -55,9 +61,13 @@ class StickyNestedLayout : LinearLayout,
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
-            : super(context, attrs, defStyleAttr)
+        : super(context, attrs, defStyleAttr)
 
-    private fun log(str: () -> Any?) = Log.d("StickyNestedLayout", str()?.toString() ?: "null")
+    private fun log(str: () -> Any?) {
+        if (DEBUG) {
+            Log.i("StickyNestedLayout", str()?.toString() ?: "null")
+        }
+    }
 
     init {
         orientation = VERTICAL
@@ -72,11 +82,11 @@ class StickyNestedLayout : LinearLayout,
         super.onFinishInflate()
 
         headView = findChildView(R.id.stickyHeadView, R.string.stickyHeadView,
-                "stickyHeadView")
+            "stickyHeadView")
         navView = findChildView(R.id.stickyNavView, R.string.stickyNavView,
-                "stickyNavView")
+            "stickyNavView")
         contentView = findChildView(R.id.stickyContentView, R.string.stickyContentView,
-                "stickyContentView")
+            "stickyContentView")
 
         //让headView是可以收触摸事件的 dispatchTouchEvent才能处理滑动的事件
         headView.isFocusable = true
@@ -92,13 +102,13 @@ class StickyNestedLayout : LinearLayout,
             findViewsWithText(singleViewExpect, string(strId), FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
             return when {
                 singleViewExpect.isEmpty() -> throw StickyNestedLayoutException(
-                        "在StickyNestedLayout中必须要提供一个含有属性 android:id=\"@id/$msg\" 或者" +
-                                "android:contentDescription=\"@string/$msg\" 的子View "
+                    "在StickyNestedLayout中必须要提供一个含有属性 android:id=\"@id/$msg\" 或者" +
+                        "android:contentDescription=\"@string/$msg\" 的子View "
                 )
                 singleViewExpect.size > 1 -> throw StickyNestedLayoutException(
-                        "在StickyNestedLayout中包含了多个含有属性 android:id=\"@id/$msg\" 或者" +
-                                "android:contentDescription=\"@string/$msg\" 的子View，" +
-                                "StickyNestedLayout无法确定应该使用哪一个"
+                    "在StickyNestedLayout中包含了多个含有属性 android:id=\"@id/$msg\" 或者" +
+                        "android:contentDescription=\"@string/$msg\" 的子View，" +
+                        "StickyNestedLayout无法确定应该使用哪一个"
                 )
                 else -> singleViewExpect.first()
             }
@@ -108,9 +118,9 @@ class StickyNestedLayout : LinearLayout,
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         headView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(
-                0, View.MeasureSpec.UNSPECIFIED))
+            0, View.MeasureSpec.UNSPECIFIED))
         contentView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(
-                measuredHeight - navViewHeight - stickyOffsetHeight, View.MeasureSpec.AT_MOST))
+            measuredHeight - navViewHeight - stickyOffsetHeight, View.MeasureSpec.AT_MOST))
         setMeasuredDimension(measuredWidth, measuredHeight)
     }
 
@@ -229,51 +239,61 @@ class StickyNestedLayout : LinearLayout,
 
     override fun stopNestedScroll() = childHelper.stopNestedScroll()
 
-    override fun dispatchNestedScroll(dxConsumed: Int, dyConsumed: Int,
-                                      dxUnconsumed: Int, dyUnconsumed: Int,
-                                      offsetInWindow: IntArray?, type: Int) =
-            childHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed,
-                    dyUnconsumed, offsetInWindow, type)
+    override fun dispatchNestedScroll(
+        dxConsumed: Int, dyConsumed: Int,
+        dxUnconsumed: Int, dyUnconsumed: Int,
+        offsetInWindow: IntArray?, type: Int
+    ) =
+        childHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed,
+            dyUnconsumed, offsetInWindow, type)
 
-    override fun dispatchNestedScroll(dxConsumed: Int, dyConsumed: Int,
-                                      dxUnconsumed: Int, dyUnconsumed: Int,
-                                      offsetInWindow: IntArray?) =
-            childHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
-                    dxUnconsumed, dyUnconsumed, offsetInWindow)
+    override fun dispatchNestedScroll(
+        dxConsumed: Int, dyConsumed: Int,
+        dxUnconsumed: Int, dyUnconsumed: Int,
+        offsetInWindow: IntArray?
+    ) =
+        childHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
+            dxUnconsumed, dyUnconsumed, offsetInWindow)
 
-    override fun dispatchNestedPreScroll(dx: Int, dy: Int, consumed: IntArray?,
-                                         offsetInWindow: IntArray?, type: Int) =
-            childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type)
+    override fun dispatchNestedPreScroll(
+        dx: Int, dy: Int, consumed: IntArray?,
+        offsetInWindow: IntArray?, type: Int
+    ) =
+        childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type)
 
-    override fun dispatchNestedPreScroll(dx: Int, dy: Int, consumed: IntArray?,
-                                         offsetInWindow: IntArray?) =
-            childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow)
+    override fun dispatchNestedPreScroll(
+        dx: Int, dy: Int, consumed: IntArray?,
+        offsetInWindow: IntArray?
+    ) =
+        childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow)
 
     override fun dispatchNestedFling(velocityX: Float, velocityY: Float, consumed: Boolean) =
-            childHelper.dispatchNestedFling(velocityX, velocityY, consumed)
+        childHelper.dispatchNestedFling(velocityX, velocityY, consumed)
 
     override fun dispatchNestedPreFling(velocityX: Float, velocityY: Float) =
-            childHelper.dispatchNestedPreFling(velocityX, velocityY)
+        childHelper.dispatchNestedPreFling(velocityX, velocityY)
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int) =
-            parentHelper.onNestedScrollAccepted(child, target, axes)
+        parentHelper.onNestedScrollAccepted(child, target, axes)
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int, type: Int) =
-            parentHelper.onNestedScrollAccepted(child, target, axes, type)
+        parentHelper.onNestedScrollAccepted(child, target, axes, type)
 
     override fun getNestedScrollAxes() = parentHelper.nestedScrollAxes
 
     override fun onStopNestedScroll(child: View) = parentHelper.onStopNestedScroll(child)
 
     override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int) =
-            onStartNestedScroll(child, target, axes)
+        onStartNestedScroll(child, target, axes)
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray?, type: Int) {
         onNestedPreScroll(target, dx, dy, consumed ?: IntArray(2))
     }
 
-    override fun onNestedScroll(target: View, dxConsumed: Int, dyConsumed: Int,
-                                dxUnconsumed: Int, dyUnconsumed: Int, type: Int) {
+    override fun onNestedScroll(
+        target: View, dxConsumed: Int, dyConsumed: Int,
+        dxUnconsumed: Int, dyUnconsumed: Int, type: Int
+    ) {
         onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed)
     }
 
@@ -309,8 +329,8 @@ class StickyNestedLayout : LinearLayout,
         if (headViewCanBeExpand) {
             log {
                 "dx = $dx dy = $dy parentConsumed = ${parentConsumed[0]},${parentConsumed[1]}" +
-                        " offset = ${offset[0]},${offset[1]} scrollY = $scrollY" +
-                        " headViewHeight = $headViewHeight"
+                    " offset = ${offset[0]},${offset[1]} scrollY = $scrollY" +
+                    " headViewHeight = $headViewHeight"
             }
 
             if (leftY > headViewScrollDis) { //滑的距离超过了能滚的距离
@@ -326,8 +346,10 @@ class StickyNestedLayout : LinearLayout,
         }
     }
 
-    override fun onNestedScroll(target: View, dxConsumed: Int, dyConsumed: Int,
-                                dxUnconsumed: Int, dyUnconsumed: Int) {
+    override fun onNestedScroll(
+        target: View, dxConsumed: Int, dyConsumed: Int,
+        dxUnconsumed: Int, dyUnconsumed: Int
+    ) {
         //dy < 0 下滑时处理
         var dyUnconsumedAfterMe = dyUnconsumed
         var dyConsumedAfterMe = dyConsumed
@@ -400,7 +422,7 @@ class StickyNestedLayout : LinearLayout,
                 if (!isNestedScrollingStartedByThisView && !isNestedScrolling) {
                     log { "startNestedScroll" }
                     startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL
-                            or ViewCompat.SCROLL_AXIS_HORIZONTAL)
+                        or ViewCompat.SCROLL_AXIS_HORIZONTAL)
                     isNestedScrollingStartedByThisView = true
                 }
 
