@@ -49,6 +49,7 @@
         android:textSize="17sp" />
 
     <ImageView
+        android:id="@+id/momentItemQrCode"
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_below="@id/momentItemContent"

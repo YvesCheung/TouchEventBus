@@ -5,9 +5,11 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
 import android.view.ViewTreeObserver
+import android.widget.Toast
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.moment_head_view.*
 import mobile.yy.com.nestedtouch.StickyNestedLayout
 
 class MainActivity : AppCompatActivity() {
@@ -33,18 +35,25 @@ class MainActivity : AppCompatActivity() {
         refreshLayout.setRefreshHeader(ClassicsHeader(this))
         refreshLayout.setRefreshFooter(ClassicsFooter(this))
         refreshLayout.setEnableNestedScroll(true)
+
         titleBar.alpha = 0f
         titleBar.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+
         contentView.adapter = MainAdapter(supportFragmentManager)
+
         navView.setViewPager(contentView)
+
+        momentItemQrCode.setOnClickListener {
+            Toast.makeText(this, "click qr code", Toast.LENGTH_SHORT).show()
+        }
     }
 }
 
 class MainAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
     override fun getItem(position: Int) =
-            if (position == 2) BlankFragment()
-            else DetailFragment()
+        if (position == 2) BlankFragment()
+        else DetailFragment()
 
     override fun getCount() = 3
 
