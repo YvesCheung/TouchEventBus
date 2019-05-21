@@ -10,7 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import java.util.*
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
+import com.scwang.smartrefresh.layout.footer.ClassicsFooter
 
 /**
  * Created by 张宇 on 2018/4/27.
@@ -22,9 +23,15 @@ class DetailFragment : Fragment() {
     private val randomNumber get() = Array(30) { idx -> "${idx}000000" }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return RecyclerView(context).apply {
+        val recyclerView = NestedRecyclerView(context).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = DetailAdapter(randomNumber.toList())
+        }
+        return SmartRefreshLayout(context).apply {
+            isEnableRefresh = false
+            setRefreshFooter(ClassicsFooter(context))
+            setEnableNestedScroll(true)
+            addView(recyclerView)
         }
     }
 }
@@ -33,7 +40,7 @@ class DetailAdapter(private val list: List<String>) : RecyclerView.Adapter<Detai
 
     private val Number.dp2px
         get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-                Resources.getSystem().displayMetrics).toInt()
+            Resources.getSystem().displayMetrics).toInt()
 
     private val padding = 20.dp2px
 

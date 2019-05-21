@@ -367,10 +367,13 @@ class StickyNestedLayout : LinearLayout,
     }
 
     override fun onNestedFling(target: View, velocityX: Float, velocityY: Float, consumed: Boolean): Boolean {
-        log { "onNestedFling $velocityY" }
+        log { "onNestedFling vy = $velocityY, consumed = $consumed" }
         //velocityY < 0 下滑
         val headViewScrollDis = scrollY
-        if (velocityY < 0 && !target.canScrollVertically(-1) && headViewScrollDis > 0) {
+        if (!consumed &&
+            velocityY < 0 &&
+            !target.canScrollVertically(-1) &&
+            headViewScrollDis > 0) {
             startFling(velocityX, velocityY)
             return true
         }

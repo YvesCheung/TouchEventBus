@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
 import android.view.ViewTreeObserver
 import android.widget.Toast
-import com.scwang.smartrefresh.layout.footer.ClassicsFooter
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.moment_head_view.*
@@ -33,8 +32,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         refreshLayout.setRefreshHeader(ClassicsHeader(this))
-        refreshLayout.setRefreshFooter(ClassicsFooter(this))
         refreshLayout.setEnableNestedScroll(true)
+        refreshLayout.isEnableLoadMore = false
 
         titleBar.alpha = 0f
         titleBar.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
