@@ -134,7 +134,7 @@ open class StickyNestedLayout : LinearLayout,
         measureChildWithMargins(headView, widthMeasureSpec, wrapContent)
         measureChildWithMargins(navView, widthMeasureSpec, wrapContent)
         measureChildWithMargins(contentView, widthMeasureSpec, expectContentHeight)
-        setMeasuredDimension(measuredWidth, measuredHeight)
+        setMeasuredDimension(measuredWidthAndState, measuredHeightAndState)
     }
 
     private fun measureChildWithMargins(child: View, parentWidthMeasureSpec: Int, parentHeightMeasureSpec: Int) {
