@@ -16,19 +16,20 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.MeasureSpec.UNSPECIFIED
+import android.view.View.MeasureSpec.makeMeasureSpec
 import android.view.ViewConfiguration
 import android.view.animation.Interpolator
 import android.widget.LinearLayout
 import android.widget.Scroller
 
 /**
- * Created by 张宇 on 2018/4/8.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
- *
  * 滑动冲突时起承上启下的作用：
  * 处理外层SmartRefreshLayout和RecyclerView和自己的三层同向滑动。
  * 主要想法是把RecyclerView的NestedScrolling经过自己处理后，再传递给SmartRefreshLayout。
+ *
+ * @author YvesCheung
+ * 2018/4/8
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class StickyNestedLayout : LinearLayout,
@@ -125,11 +126,30 @@ class StickyNestedLayout : LinearLayout,
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        headView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(
-            0, View.MeasureSpec.UNSPECIFIED))
-        contentView.measure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(
-            measuredHeight - navViewHeight - stickyOffsetHeight, View.MeasureSpec.AT_MOST))
+        val expectContentHeight = makeMeasureSpec(
+            measuredHeight - navViewHeight - stickyOffsetHeight,
+            MeasureSpec.AT_MOST
+        )
+        measureChildWithMargins(headView, widthMeasureSpec, makeMeasureSpec(0, UNSPECIFIED))
+        measureChildWithMargins(contentView, widthMeasureSpec, expectContentHeight)
         setMeasuredDimension(measuredWidth, measuredHeight)
+    }
+
+    private fun measureChildWithMargins(child: View, parentWidthMeasureSpec: Int, parentHeightMeasureSpec: Int) {
+        val lp = child.layoutParams as MarginLayoutParams
+        val childWidthMeasureSpec =
+            getChildMeasureSpec(
+                parentWidthMeasureSpec,
+                paddingLeft + paddingRight + lp.leftMargin + lp.rightMargin,
+                lp.width
+            )
+        val childHeightMeasureSpec =
+            getChildMeasureSpec(
+                parentHeightMeasureSpec,
+                paddingTop + paddingBottom + lp.topMargin + lp.bottomMargin,
+                lp.height
+            )
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
     }
 
     //</editor-fold desc="基础布局部分">
