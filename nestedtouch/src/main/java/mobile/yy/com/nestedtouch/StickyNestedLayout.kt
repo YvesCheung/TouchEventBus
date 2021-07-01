@@ -32,7 +32,7 @@ import android.widget.Scroller
  * 2018/4/8
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-class StickyNestedLayout : LinearLayout,
+open class StickyNestedLayout : LinearLayout,
     NestedScrollingChild2,
     NestedScrollingParent2 {
 
@@ -126,11 +126,13 @@ class StickyNestedLayout : LinearLayout,
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        val wrapContent = makeMeasureSpec(0, UNSPECIFIED)
         val expectContentHeight = makeMeasureSpec(
             measuredHeight - navViewHeight - stickyOffsetHeight,
             MeasureSpec.AT_MOST
         )
-        measureChildWithMargins(headView, widthMeasureSpec, makeMeasureSpec(0, UNSPECIFIED))
+        measureChildWithMargins(headView, widthMeasureSpec, wrapContent)
+        measureChildWithMargins(navView, widthMeasureSpec, wrapContent)
         measureChildWithMargins(contentView, widthMeasureSpec, expectContentHeight)
         setMeasuredDimension(measuredWidth, measuredHeight)
     }
