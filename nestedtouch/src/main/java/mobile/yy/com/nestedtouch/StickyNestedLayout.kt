@@ -22,6 +22,7 @@ import android.view.ViewConfiguration
 import android.view.animation.Interpolator
 import android.widget.LinearLayout
 import android.widget.Scroller
+import kotlin.math.min
 
 /**
  * 滑动冲突时起承上启下的作用：
@@ -127,12 +128,12 @@ open class StickyNestedLayout : LinearLayout,
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val wrapContent = makeMeasureSpec(0, UNSPECIFIED)
+        measureChildWithMargins(headView, widthMeasureSpec, wrapContent)
+        measureChildWithMargins(navView, widthMeasureSpec, wrapContent)
         val expectContentHeight = makeMeasureSpec(
             measuredHeight - navViewHeight - stickyOffsetHeight,
             MeasureSpec.AT_MOST
         )
-        measureChildWithMargins(headView, widthMeasureSpec, wrapContent)
-        measureChildWithMargins(navView, widthMeasureSpec, wrapContent)
         measureChildWithMargins(contentView, widthMeasureSpec, expectContentHeight)
         setMeasuredDimension(measuredWidthAndState, measuredHeightAndState)
     }
@@ -547,7 +548,7 @@ open class StickyNestedLayout : LinearLayout,
             field = if (value < 0) 0 else value
             requestLayout()
         }
-        get() = Math.min(field, headViewHeight)
+        get() = min(field, headViewHeight)
 
     /**
      * 获取头部区域的高度
