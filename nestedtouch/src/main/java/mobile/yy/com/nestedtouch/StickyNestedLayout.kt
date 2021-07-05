@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.support.annotation.IdRes
 import android.support.annotation.MainThread
+import android.support.annotation.Size
 import android.support.annotation.StringRes
 import android.support.v4.view.NestedScrollingChild2
 import android.support.v4.view.NestedScrollingChildHelper
 import android.support.v4.view.NestedScrollingParent2
 import android.support.v4.view.NestedScrollingParentHelper
 import android.support.v4.view.ViewCompat
+import android.support.v4.view.ViewCompat.TYPE_NON_TOUCH
 import android.support.v4.view.ViewCompat.TYPE_TOUCH
 import android.util.AttributeSet
 import android.util.Log
@@ -22,7 +24,9 @@ import android.view.ViewConfiguration
 import android.view.animation.Interpolator
 import android.widget.LinearLayout
 import android.widget.Scroller
+import kotlin.math.abs
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * 滑动冲突时起承上启下的作用：
@@ -50,6 +54,7 @@ open class StickyNestedLayout : LinearLayout,
      * 是否正在嵌套滑动
      */
     private var isNestedScrollingStartedByChild = false
+
     /**
      * 是否由当前View主动发起的嵌套滑动
      */
@@ -61,8 +66,12 @@ open class StickyNestedLayout : LinearLayout,
 
     @Suppress("LeakingThis")
     private val childHelper = NestedScrollingChildHelper(this)
+
     @Suppress("LeakingThis")
     private val parentHelper = NestedScrollingParentHelper(this)
+
+    @Size(2)
+    private val tempXY = IntArray(2)
 
     constructor(context: Context) : super(context)
 
@@ -93,12 +102,15 @@ open class StickyNestedLayout : LinearLayout,
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        headView = findChildView(R.id.stickyHeadView, R.string.stickyHeadView,
-            "stickyHeadView")
-        navView = findChildView(R.id.stickyNavView, R.string.stickyNavView,
-            "stickyNavView")
-        contentView = findChildView(R.id.stickyContentView, R.string.stickyContentView,
-            "stickyContentView")
+        headView = findChildView(
+            R.id.stickyHeadView, R.string.stickyHeadView, "stickyHeadView"
+        )
+        navView = findChildView(
+            R.id.stickyNavView, R.string.stickyNavView, "stickyNavView"
+        )
+        contentView = findChildView(
+            R.id.stickyContentView, R.string.stickyContentView, "stickyContentView"
+        )
 
         //让headView是可以收触摸事件的 dispatchTouchEvent才能处理滑动的事件
         headView.isFocusable = true
@@ -140,7 +152,11 @@ open class StickyNestedLayout : LinearLayout,
         setMeasuredDimension(measuredWidthAndState, measuredHeightAndState)
     }
 
-    private fun measureChildWithMargins(child: View, parentWidthMeasureSpec: Int, parentHeightMeasureSpec: Int) {
+    private fun measureChildWithMargins(
+        child: View,
+        parentWidthMeasureSpec: Int,
+        parentHeightMeasureSpec: Int
+    ) {
         val lp = child.layoutParams as MarginLayoutParams
         val childWidthMeasureSpec =
             getChildMeasureSpec(
@@ -194,30 +210,56 @@ open class StickyNestedLayout : LinearLayout,
     }
 
     private var mScroller = Scroller(context, sQuinticInterpolator)
-
-    /**
-     * 模拟惯性继续滑行
-     *
-     * @param velocityY 当前的滚动速度
-     */
-    private fun startFling(velocityX: Float, velocityY: Float) {
-        mScroller.fling(0, scrollY, 0, Math.round(velocityY),
-            Int.MIN_VALUE, Int.MAX_VALUE, Int.MIN_VALUE, Int.MAX_VALUE)
-        ViewCompat.postInvalidateOnAnimation(this)
-
-        //自己结束消费手势，交给parent消费
-        dispatchNestedFling(velocityX, velocityY, true)
-        log { "stopNestedScroll" }
-        isNestedScrollingStartedByChild = false
-        isNestedScrollingStartedByThisView = false
-        stopNestedScroll()
-    }
+    private var lastFlingX = 0
+    private var lastFlingY = 0
+    private var inStateOfFling = false
 
     override fun computeScroll() {
         if (mScroller.computeScrollOffset()) {
-            scrollToWithUnConsumed(mScroller.currX, mScroller.currY, null)
-            ViewCompat.postInvalidateOnAnimation(this)
+            if (inStateOfFling) {  //fling
+                val curY = mScroller.currY
+                val curX = mScroller.currX
+                var dy = curY - lastFlingX
+                var dx = curX - lastFlingY
+                lastFlingX = curY
+                lastFlingY = curX
+                if (dispatchNestedPreScroll(dx, dy, tempXY, null, TYPE_NON_TOUCH)) {
+                    dx -= tempXY[0]
+                    dy -= tempXY[1]
+                }
+                scrollByWithUnConsumed(0, dy, tempXY)
+                dispatchNestedScroll(
+                    0, dy - tempXY[1],
+                    dx, tempXY[1], null, TYPE_NON_TOUCH
+                )
+            } else { //scroll
+                scrollToWithUnConsumed(mScroller.currX, mScroller.currY, null)
+            }
+
+            if (mScroller.isFinished) {
+                if (inStateOfFling) {
+                    stopNestedScroll(TYPE_NON_TOUCH)
+                    inStateOfFling = false
+                }
+                isNestedScrollingStartedByChild = false
+                isNestedScrollingStartedByThisView = false
+            } else {
+                ViewCompat.postInvalidateOnAnimation(this)
+            }
         }
+    }
+
+    private fun fling(vx: Float, vy: Float) {
+        log { "startFling velocityY = $vy" }
+        mScroller.fling(
+            0, scrollY, vx.roundToInt(), vy.roundToInt(),
+            Int.MIN_VALUE, Int.MAX_VALUE, Int.MIN_VALUE, Int.MAX_VALUE
+        )
+        lastFlingX = 0
+        lastFlingY = 0
+        inStateOfFling = true
+        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, TYPE_NON_TOUCH)
+        ViewCompat.postInvalidateOnAnimation(this)
     }
 
     //</editor-fold" desc="基础滚动能力部分">
@@ -234,41 +276,47 @@ open class StickyNestedLayout : LinearLayout,
 
     override fun isNestedScrollingEnabled() = childHelper.isNestedScrollingEnabled
 
-    override fun startNestedScroll(axes: Int) = childHelper.startNestedScroll(axes)
+    override fun startNestedScroll(axes: Int) = startNestedScroll(axes, TYPE_TOUCH)
 
-    override fun startNestedScroll(axes: Int, type: Int) = childHelper.startNestedScroll(axes, type)
+    override fun startNestedScroll(axes: Int, type: Int): Boolean {
+        log { "startNestedScroll $type" }
+        return childHelper.startNestedScroll(axes, type)
+    }
 
-    override fun stopNestedScroll(type: Int) = childHelper.stopNestedScroll(type)
+    override fun stopNestedScroll() = stopNestedScroll(TYPE_TOUCH)
 
-    override fun stopNestedScroll() = childHelper.stopNestedScroll()
+    override fun stopNestedScroll(type: Int) {
+        log { "stopNestedScroll $type" }
+        childHelper.stopNestedScroll(type)
+    }
 
     override fun dispatchNestedScroll(
         dxConsumed: Int, dyConsumed: Int,
         dxUnconsumed: Int, dyUnconsumed: Int,
         offsetInWindow: IntArray?, type: Int
-    ) =
-        childHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed,
-            dyUnconsumed, offsetInWindow, type)
+    ) = childHelper.dispatchNestedScroll(
+        dxConsumed, dyConsumed, dxUnconsumed,
+        dyUnconsumed, offsetInWindow, type
+    )
 
     override fun dispatchNestedScroll(
         dxConsumed: Int, dyConsumed: Int,
         dxUnconsumed: Int, dyUnconsumed: Int,
         offsetInWindow: IntArray?
-    ) =
-        childHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
-            dxUnconsumed, dyUnconsumed, offsetInWindow)
+    ) = childHelper.dispatchNestedScroll(
+        dxConsumed, dyConsumed,
+        dxUnconsumed, dyUnconsumed, offsetInWindow
+    )
 
     override fun dispatchNestedPreScroll(
         dx: Int, dy: Int, consumed: IntArray?,
         offsetInWindow: IntArray?, type: Int
-    ) =
-        childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type)
+    ) = childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type)
 
     override fun dispatchNestedPreScroll(
         dx: Int, dy: Int, consumed: IntArray?,
         offsetInWindow: IntArray?
-    ) =
-        childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow)
+    ) = childHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow)
 
     override fun dispatchNestedFling(velocityX: Float, velocityY: Float, consumed: Boolean) =
         childHelper.dispatchNestedFling(velocityX, velocityY, consumed)
@@ -286,9 +334,8 @@ open class StickyNestedLayout : LinearLayout,
 
     override fun onStopNestedScroll(child: View) = parentHelper.onStopNestedScroll(child)
 
-    override fun onStartNestedScroll(child: View, target: View, nestedScrollAxes: Int): Boolean {
-        return onStartNestedScroll(child, target, nestedScrollAxes, TYPE_TOUCH)
-    }
+    override fun onStartNestedScroll(child: View, target: View, nestedScrollAxes: Int): Boolean =
+        onStartNestedScroll(child, target, nestedScrollAxes, TYPE_TOUCH)
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {
         onNestedPreScroll(target, dx, dy, consumed, TYPE_TOUCH)
@@ -301,51 +348,66 @@ open class StickyNestedLayout : LinearLayout,
         onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, TYPE_TOUCH)
     }
 
+    override fun onNestedPreFling(target: View, velocityX: Float, velocityY: Float): Boolean =
+        dispatchNestedPreFling(velocityX, velocityY)
+
+    override fun onNestedFling(
+        target: View,
+        velocityX: Float,
+        velocityY: Float,
+        consumed: Boolean
+    ): Boolean = dispatchNestedFling(velocityX, velocityY, consumed)
+
+    /**
+     * 记录当前开始中的嵌套滑动类型
+     * @see TYPE_TOUCH
+     * @see TYPE_NON_TOUCH
+     */
+    private val nestedScrollingType = mutableSetOf<Int>()
+
     //child告诉我要开始嵌套滑动
     override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int): Boolean {
-        if (type == TYPE_TOUCH) {
-            log { "onStartNestedScroll " }
-            isNestedScrollingStartedByThisView = false
-            isNestedScrollingStartedByChild = true
-            startNestedScroll(nestedScrollAxes or ViewCompat.SCROLL_AXIS_VERTICAL) //开始通知parent的嵌套滑动
-            return true
-        }
-        return false
+        log { "onStartNestedScroll $type" }
+        nestedScrollingType.add(type)
+        isNestedScrollingStartedByThisView = false
+        isNestedScrollingStartedByChild = true
+        //开始通知parent的嵌套滑动
+        startNestedScroll(nestedScrollAxes or ViewCompat.SCROLL_AXIS_VERTICAL, type)
+        return true
     }
 
     //child告诉我要停止嵌套滑动
     override fun onStopNestedScroll(target: View, type: Int) {
-        if (type == TYPE_TOUCH) {
-            log { "onStopNestedScroll $target " }
+        log { "onStopNestedScroll $target, type = $type" }
+        nestedScrollingType.remove(type)
+        if (nestedScrollingType.isEmpty()) {
             isNestedScrollingStartedByThisView = false
             isNestedScrollingStartedByChild = false
-            stopNestedScroll() //结束parent的嵌套滑动
         }
+        stopNestedScroll(type) //结束parent的嵌套滑动
     }
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray?, type: Int) {
-        if (isNestedScrollingStartedByChild && type == TYPE_TOUCH) {
+        if (isNestedScrollingStartedByChild) {
+            log { "onNestedPreScroll dy = $dy, type = $type" }
             //dy > 0 上滑时处理
-            val parentConsumed = IntArray(2)
-            val offset = IntArray(2)
-            dispatchNestedPreScroll(0, dy, parentConsumed, offset) //先分给parent搞事
+            dispatchNestedPreScroll(dx, dy, tempXY, null) //先分给parent搞事
 
-            val leftY = dy - parentConsumed[1] //parent留给我的
+            val leftY = dy - tempXY[1] //parent留给我的
             val headViewScrollDis = headViewHeight - scrollY - stickyOffsetHeight
             val headViewCanBeExpand = leftY > 0 && headViewScrollDis > 0 //上滑且headView能向上滚
 
-            consumed?.set(0, parentConsumed[0]) //x方向全是parent吃的
+            consumed?.set(0, tempXY[0]) //x方向全是parent吃的
             if (headViewCanBeExpand) {
                 if (leftY > headViewScrollDis) { //滑的距离超过了能滚的距离
                     scrollByWithUnConsumed(0, headViewScrollDis)
-                    consumed?.set(1, headViewScrollDis + parentConsumed[1]) //只消费能滚的最大距离
+                    consumed?.set(1, headViewScrollDis + tempXY[1]) //只消费能滚的最大距离
                 } else {
                     scrollByWithUnConsumed(0, leftY) //没超过滚的极限距离，那就滑多少滚多少
                     consumed?.set(1, dy) //把parent吃剩的全吃了 (parentConsumed[1] + leftY)
                 }
-
             } else { //headView不能滑了 全是parent吃的
-                consumed?.set(1, parentConsumed[1])
+                consumed?.set(1, tempXY[1])
             }
         }
     }
@@ -354,14 +416,15 @@ open class StickyNestedLayout : LinearLayout,
         target: View, dxConsumed: Int, dyConsumed: Int,
         dxUnconsumed: Int, dyUnconsumed: Int, type: Int
     ) {
-        if (isNestedScrollingStartedByChild && type == TYPE_TOUCH) {
+        if (isNestedScrollingStartedByChild) {
+            log { "onNestedScroll dyConsumed = $dyConsumed, dyUnconsumed = $dyUnconsumed, type = $type" }
             //dy < 0 下滑时处理
             var dyUnconsumedAfterMe = dyUnconsumed
             var dyConsumedAfterMe = dyConsumed
             val headViewScrollDis = scrollY
 
             if (dyUnconsumed < 0 && headViewScrollDis >= 0) { //下滑而且headView能向下滚
-                if (headViewScrollDis < Math.abs(dyUnconsumed)) { //滑动距离超过了可以滚的范围
+                if (headViewScrollDis < abs(dyUnconsumed)) { //滑动距离超过了可以滚的范围
                     scrollByWithUnConsumed(0, -headViewScrollDis) //只滚我能滚的
                     dyUnconsumedAfterMe = dyUnconsumed + headViewScrollDis //只消费我能滑的
                     dyConsumedAfterMe = dyConsumed - headViewScrollDis
@@ -372,37 +435,11 @@ open class StickyNestedLayout : LinearLayout,
                 }
             }
 
-            dispatchNestedScroll(0, dyConsumedAfterMe, 0,
-                dyUnconsumedAfterMe, null)
+            dispatchNestedScroll(
+                0, dyConsumedAfterMe, 0,
+                dyUnconsumedAfterMe, null
+            )
         }
-    }
-
-    override fun onNestedPreFling(target: View, velocityX: Float, velocityY: Float): Boolean {
-
-        //velocityY > 0 上滑
-        if (dispatchNestedPreFling(velocityX, velocityY)) { //先给parent fling
-            return true
-        }
-        val headViewScrollDis = headViewHeight - scrollY - stickyOffsetHeight
-        if (velocityY > 0 && headViewScrollDis > 0) { //用户给了个向上滑动惯性 而且 headView还可以上滑
-            startFling(velocityX, velocityY)
-            return true
-        }
-        return false
-    }
-
-    override fun onNestedFling(target: View, velocityX: Float, velocityY: Float, consumed: Boolean): Boolean {
-        log { "onNestedFling vy = $velocityY, consumed = $consumed" }
-        //velocityY < 0 下滑
-        val headViewScrollDis = scrollY
-        if (!consumed &&
-            velocityY < 0 &&
-            !target.canScrollVertically(-1) &&
-            headViewScrollDis > 0) {
-            startFling(velocityX, velocityY)
-            return true
-        }
-        return dispatchNestedFling(velocityX, velocityY, consumed)
     }
 
     //</editor-fold desc="嵌套滑动部分">
@@ -418,22 +455,20 @@ open class StickyNestedLayout : LinearLayout,
     private val gestureHandler = object : GestureDetector.SimpleOnGestureListener() {
 
         override fun onScroll(
-            e1: MotionEvent?, e2: MotionEvent,
-            distanceX: Float, distanceY: Float
+            e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float
         ): Boolean {
             if (isNestedScrollingStartedByThisView) {
-                val scrollByHuman = Math.round(lastY - e2.y) //手势产生的距离
+                val scrollByHuman = (lastY - e2.y).roundToInt() //手势产生的距离
                 log { "scroll y = ${e2.y} lastY = $lastY dy = $scrollByHuman" }
-                val consumedByParent = IntArray(2)
-                val offset = IntArray(2)
+                val consumedByParent = tempXY
                 //先给parent消费
-                dispatchNestedPreScroll(0, scrollByHuman, consumedByParent, offset)
+                dispatchNestedPreScroll(0, scrollByHuman, consumedByParent, null)
                 val scrollAfterParent = scrollByHuman - consumedByParent[1] //parent吃剩的
-                val unconsumed = IntArray(2)
+                val unconsumed = tempXY
                 scrollByWithUnConsumed(0, scrollAfterParent, unconsumed) //自己滑
                 val consumeY = scrollByHuman - unconsumed[1]
                 //滑剩的再给一次parent
-                dispatchNestedScroll(0, consumeY, 0, unconsumed[1], offset)
+                dispatchNestedScroll(0, consumeY, 0, unconsumed[1], null)
             }
             lastX = e2.x
             lastY = e2.y
@@ -441,8 +476,7 @@ open class StickyNestedLayout : LinearLayout,
         }
 
         override fun onFling(
-            e1: MotionEvent?, e2: MotionEvent,
-            velocityX: Float, velocityY: Float
+            e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float
         ): Boolean {
             log { "onFling velocity = $velocityY" }
             return onUpOrCancel(-velocityX, -velocityY)
@@ -460,8 +494,12 @@ open class StickyNestedLayout : LinearLayout,
             if (isNestedScrollingStartedByThisView) {
                 //根据当前速度 进行惯性滑行
                 //先让parent消费
-                dispatchNestedPreFling(0f, velY)
-                startFling(velX, velY)
+                if (!dispatchNestedPreFling(velX, velY)) {
+                    dispatchNestedFling(velX, velY, true)
+
+                    fling(velX, velY)
+                }
+                stopNestedScroll(TYPE_TOUCH)
                 return true
             }
             return false
@@ -475,7 +513,8 @@ open class StickyNestedLayout : LinearLayout,
         if (gestureDetector.onTouchEvent(event)) {
             return true
         } else if (action == MotionEvent.ACTION_UP ||
-            action == MotionEvent.ACTION_CANCEL) {
+            action == MotionEvent.ACTION_CANCEL
+        ) {
             log { if (action == MotionEvent.ACTION_UP) "onUp" else "onCancel" }
             return gestureHandler.onUpOrCancel()
         }
@@ -501,15 +540,17 @@ open class StickyNestedLayout : LinearLayout,
                 downRawX = event.rawX
                 isNestedScrollingStartedByThisView = false
                 isNestedScrollingStartedByChild = false
-                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL or
-                    ViewCompat.SCROLL_AXIS_HORIZONTAL)
+                startNestedScroll(
+                    ViewCompat.SCROLL_AXIS_VERTICAL or
+                        ViewCompat.SCROLL_AXIS_HORIZONTAL
+                )
             }
             MotionEvent.ACTION_MOVE -> {
                 lastY = event.y
                 lastX = event.x
                 if (!isNestedScrollingStartedByChild) {
-                    val dy = Math.abs(event.rawY - downRawY)
-                    val dx = Math.abs(event.rawX - downRawX)
+                    val dy = abs(event.rawY - downRawY)
+                    val dx = abs(event.rawX - downRawX)
                     if (dy > mTouchSlop && dy > 2 * dx) {
                         isNestedScrollingStartedByThisView = true
                         log { "onInterceptTouchEvent requestDisallowIntercept" }
@@ -525,7 +566,6 @@ open class StickyNestedLayout : LinearLayout,
     private fun requestDisallowParentTouchEvent() {
         parent?.requestDisallowInterceptTouchEvent(true)
     }
-
     //</editor-fold desc="自身手势触摸处理部分">
 
     //<editor-fold desc="公共API部分">
