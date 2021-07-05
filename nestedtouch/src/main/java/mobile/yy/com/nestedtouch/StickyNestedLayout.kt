@@ -59,7 +59,9 @@ open class StickyNestedLayout : LinearLayout,
     private lateinit var navView: View
     private lateinit var contentView: View
 
+    @Suppress("LeakingThis")
     private val childHelper = NestedScrollingChildHelper(this)
+    @Suppress("LeakingThis")
     private val parentHelper = NestedScrollingParentHelper(this)
 
     constructor(context: Context) : super(context)
