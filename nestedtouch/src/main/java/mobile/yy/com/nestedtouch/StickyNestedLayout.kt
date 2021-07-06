@@ -252,7 +252,7 @@ open class StickyNestedLayout : LinearLayout,
     private fun fling(vx: Float, vy: Float) {
         log { "startFling velocityY = $vy" }
         mScroller.fling(
-            0, scrollY, vx.roundToInt(), vy.roundToInt(),
+            0, 0, vx.roundToInt(), vy.roundToInt(),
             Int.MIN_VALUE, Int.MAX_VALUE, Int.MIN_VALUE, Int.MAX_VALUE
         )
         lastFlingX = 0
@@ -479,7 +479,20 @@ open class StickyNestedLayout : LinearLayout,
             e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float
         ): Boolean {
             log { "onFling velocity = $velocityY" }
-            return onUpOrCancel(-velocityX, -velocityY)
+            val vx = -velocityX
+            val vy = -velocityY
+            if (isNestedScrollingStartedByThisView) {
+                //根据当前速度 进行惯性滑行
+                //先让parent消费
+                if (!dispatchNestedPreFling(vx, vy)) {
+                    dispatchNestedFling(vx, vy, true)
+
+                    fling(vx, vy)
+                }
+                stopNestedScroll(TYPE_TOUCH)
+                return true
+            }
+            return false
         }
 
         override fun onDown(e: MotionEvent): Boolean {
@@ -488,21 +501,6 @@ open class StickyNestedLayout : LinearLayout,
             lastY = e.y
             lastX = e.x
             return true
-        }
-
-        fun onUpOrCancel(velX: Float = 0f, velY: Float = 0f): Boolean {
-            if (isNestedScrollingStartedByThisView) {
-                //根据当前速度 进行惯性滑行
-                //先让parent消费
-                if (!dispatchNestedPreFling(velX, velY)) {
-                    dispatchNestedFling(velX, velY, true)
-
-                    fling(velX, velY)
-                }
-                stopNestedScroll(TYPE_TOUCH)
-                return true
-            }
-            return false
         }
     }
     private val gestureDetector by lazy { GestureDetector(context, gestureHandler) }
@@ -516,7 +514,11 @@ open class StickyNestedLayout : LinearLayout,
             action == MotionEvent.ACTION_CANCEL
         ) {
             log { if (action == MotionEvent.ACTION_UP) "onUp" else "onCancel" }
-            return gestureHandler.onUpOrCancel()
+            if (isNestedScrollingStartedByThisView) {
+                stopNestedScroll(TYPE_TOUCH)
+                return true
+            }
+            return false
         }
         return false
     }
