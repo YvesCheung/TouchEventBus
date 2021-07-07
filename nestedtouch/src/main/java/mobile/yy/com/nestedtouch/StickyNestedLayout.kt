@@ -61,7 +61,7 @@ open class StickyNestedLayout : LinearLayout,
     private var isNestedScrollingStartedByThisView = false
 
     private lateinit var headView: View
-    private lateinit var navView: View
+    private var navView: View? = null
     private lateinit var contentView: View
 
     @Suppress("LeakingThis")
@@ -102,13 +102,13 @@ open class StickyNestedLayout : LinearLayout,
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        headView = findChildView(
+        headView = requireChildView(
             R.id.stickyHeadView, R.string.stickyHeadView, "stickyHeadView"
         )
-        navView = findChildView(
+        navView = optionalChildView(
             R.id.stickyNavView, R.string.stickyNavView, "stickyNavView"
         )
-        contentView = findChildView(
+        contentView = requireChildView(
             R.id.stickyContentView, R.string.stickyContentView, "stickyContentView"
         )
 
@@ -117,24 +117,29 @@ open class StickyNestedLayout : LinearLayout,
         headView.isClickable = true
     }
 
-    private fun findChildView(@IdRes id: Int, @StringRes strId: Int, msg: String): View {
+    private fun requireChildView(@IdRes id: Int, @StringRes strId: Int, msg: String): View {
+        return optionalChildView(id, strId, msg)
+            ?: throw StickyNestedLayoutException(
+                "在StickyNestedLayout中必须要提供一个含有属性 android:id=\"@id/$msg\" 或者" +
+                    "android:contentDescription=\"@string/$msg\" 的子View "
+            )
+    }
+
+    private fun optionalChildView(@IdRes id: Int, @StringRes strId: Int, msg: String): View? {
         val viewOptional: View? = findViewById(id)
-        if (viewOptional != null) {
-            return viewOptional
+        return if (viewOptional != null) {
+            viewOptional
         } else {
             val singleViewExpect = ArrayList<View>(1)
             findViewsWithText(singleViewExpect, string(strId), FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
-            return when {
-                singleViewExpect.isEmpty() -> throw StickyNestedLayoutException(
-                    "在StickyNestedLayout中必须要提供一个含有属性 android:id=\"@id/$msg\" 或者" +
-                        "android:contentDescription=\"@string/$msg\" 的子View "
-                )
-                singleViewExpect.size > 1 -> throw StickyNestedLayoutException(
+            if (singleViewExpect.size > 1) {
+                throw StickyNestedLayoutException(
                     "在StickyNestedLayout中包含了多个含有属性 android:id=\"@id/$msg\" 或者" +
                         "android:contentDescription=\"@string/$msg\" 的子View，" +
                         "StickyNestedLayout无法确定应该使用哪一个"
                 )
-                else -> singleViewExpect.first()
+            } else {
+                singleViewExpect.firstOrNull()
             }
         }
     }
@@ -143,7 +148,10 @@ open class StickyNestedLayout : LinearLayout,
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val wrapContent = makeMeasureSpec(0, UNSPECIFIED)
         measureChildWithMargins(headView, widthMeasureSpec, wrapContent)
-        measureChildWithMargins(navView, widthMeasureSpec, wrapContent)
+        val navigationView = navView
+        if (navigationView != null) {
+            measureChildWithMargins(navigationView, widthMeasureSpec, wrapContent)
+        }
         val expectContentHeight = makeMeasureSpec(
             measuredHeight - navViewHeight - stickyOffsetHeight,
             MeasureSpec.AT_MOST
@@ -578,7 +586,7 @@ open class StickyNestedLayout : LinearLayout,
      */
     @MainThread
     fun scrollToNavView() {
-        val toY = navView.y
+        val toY = navView?.y ?: contentView.y
         scrollTo(0, toY.toInt())
     }
 
@@ -597,17 +605,17 @@ open class StickyNestedLayout : LinearLayout,
     /**
      * 获取头部区域的高度
      */
-    val headViewHeight get() = headView.measuredHeight
+    val headViewHeight: Int get() = headView.measuredHeight
 
     /**
      * 获取导航栏条的高度
      */
-    val navViewHeight get() = navView.measuredHeight
+    val navViewHeight: Int get() = navView?.measuredHeight ?: 0
 
     /**
      * 获取下部区域的高度
      */
-    val contentViewHeight get() = contentView.measuredHeight
+    val contentViewHeight: Int get() = contentView.measuredHeight
 
     private val scrollListeners = mutableListOf<OnScrollListener>()
 
