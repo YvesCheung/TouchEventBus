@@ -23,7 +23,7 @@ class DetailFragment : Fragment() {
     private val randomNumber get() = Array(30) { idx -> "${idx}000000" }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val recyclerView = NestedRecyclerView(context).apply {
+        val recyclerView = RecyclerView(context).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = DetailAdapter(randomNumber.toList())
         }
