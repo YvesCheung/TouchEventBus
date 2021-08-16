@@ -161,7 +161,7 @@ open class StickyNestedLayout : LinearLayout,
         }
         val expectContentHeight = makeMeasureSpec(
             measuredHeight - navViewHeight - stickyOffsetHeight,
-            MeasureSpec.AT_MOST
+            MeasureSpec.EXACTLY
         )
         measureChildWithMargins(contentView, widthMeasureSpec, expectContentHeight)
         setMeasuredDimension(measuredWidthAndState, measuredHeightAndState)
