@@ -70,9 +70,6 @@ open class StickyNestedLayout : LinearLayout,
     @Suppress("LeakingThis")
     private val parentHelper = NestedScrollingParentHelper(this)
 
-    @Size(2)
-    private val tempXY = IntArray(2)
-
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -96,6 +93,16 @@ open class StickyNestedLayout : LinearLayout,
     }
 
     private fun string(@StringRes id: Int): String = context.getString(id)
+
+    @Size(2)
+    private val tempXY = IntArray(2)
+
+    @Size(2)
+    private fun allocateXY(): IntArray {
+        tempXY[0] = 0
+        tempXY[1] = 0
+        return tempXY
+    }
 
     //<editor-fold desc="基础布局部分">
 
@@ -212,7 +219,10 @@ open class StickyNestedLayout : LinearLayout,
                 scrollTo(dx, scrollMax)
                 unconsumed?.set(1, dy - scrollMax)
             }
-            else -> scrollTo(dx, dy)
+            else -> {
+                scrollTo(dx, dy)
+                unconsumed?.set(1, 0)
+            }
         }
         scrollListeners.forEach { it.onScroll(this, scrollX, scrollY) }
     }
@@ -231,14 +241,18 @@ open class StickyNestedLayout : LinearLayout,
                 var dx = curX - lastFlingY
                 lastFlingX = curY
                 lastFlingY = curX
-                if (dispatchNestedPreScroll(dx, dy, tempXY, null, TYPE_NON_TOUCH)) {
-                    dx -= tempXY[0]
-                    dy -= tempXY[1]
+
+                val consumedByParent = allocateXY()
+                if (dispatchNestedPreScroll(dx, dy, consumedByParent, null, TYPE_NON_TOUCH)) {
+                    dx -= consumedByParent[0]
+                    dy -= consumedByParent[1]
                 }
-                scrollByWithUnConsumed(0, dy, tempXY)
+
+                val consumedByUs = allocateXY()
+                scrollByWithUnConsumed(0, dy, consumedByUs)
                 dispatchNestedScroll(
-                    0, dy - tempXY[1],
-                    dx, tempXY[1], null, TYPE_NON_TOUCH
+                    0, dy - consumedByUs[1],
+                    dx, consumedByUs[1], null, TYPE_NON_TOUCH
                 )
             } else { //scroll
                 scrollToWithUnConsumed(mScroller.currX, mScroller.currY, null)
@@ -399,23 +413,24 @@ open class StickyNestedLayout : LinearLayout,
         if (isNestedScrollingStartedByChild) {
             log { "onNestedPreScroll dy = $dy, type = $type" }
             //dy > 0 上滑时处理
-            dispatchNestedPreScroll(dx, dy, tempXY, null) //先分给parent搞事
+            val consumedByParent = allocateXY()
+            dispatchNestedPreScroll(dx, dy, consumedByParent, null) //先分给parent搞事
 
-            val leftY = dy - tempXY[1] //parent留给我的
+            val leftY = dy - consumedByParent[1] //parent留给我的
             val headViewScrollDis = headViewHeight - scrollY - stickyOffsetHeight
             val headViewCanBeExpand = leftY > 0 && headViewScrollDis > 0 //上滑且headView能向上滚
 
-            consumed?.set(0, tempXY[0]) //x方向全是parent吃的
+            consumed?.set(0, consumedByParent[0]) //x方向全是parent吃的
             if (headViewCanBeExpand) {
                 if (leftY > headViewScrollDis) { //滑的距离超过了能滚的距离
                     scrollByWithUnConsumed(0, headViewScrollDis)
-                    consumed?.set(1, headViewScrollDis + tempXY[1]) //只消费能滚的最大距离
+                    consumed?.set(1, headViewScrollDis + consumedByParent[1]) //只消费能滚的最大距离
                 } else {
                     scrollByWithUnConsumed(0, leftY) //没超过滚的极限距离，那就滑多少滚多少
                     consumed?.set(1, dy) //把parent吃剩的全吃了 (parentConsumed[1] + leftY)
                 }
             } else { //headView不能滑了 全是parent吃的
-                consumed?.set(1, tempXY[1])
+                consumed?.set(1, consumedByParent[1])
             }
         }
     }
@@ -468,11 +483,11 @@ open class StickyNestedLayout : LinearLayout,
             if (isNestedScrollingStartedByThisView) {
                 val scrollByHuman = (lastY - e2.y).roundToInt() //手势产生的距离
                 log { "scroll y = ${e2.y} lastY = $lastY dy = $scrollByHuman" }
-                val consumedByParent = tempXY
                 //先给parent消费
+                val consumedByParent = allocateXY()
                 dispatchNestedPreScroll(0, scrollByHuman, consumedByParent, null)
                 val scrollAfterParent = scrollByHuman - consumedByParent[1] //parent吃剩的
-                val unconsumed = tempXY
+                val unconsumed = allocateXY()
                 scrollByWithUnConsumed(0, scrollAfterParent, unconsumed) //自己滑
                 val consumeY = scrollByHuman - unconsumed[1]
                 //滑剩的再给一次parent
