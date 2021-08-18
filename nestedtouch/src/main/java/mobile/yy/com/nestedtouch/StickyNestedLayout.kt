@@ -259,16 +259,21 @@ open class StickyNestedLayout : LinearLayout,
             }
 
             if (mScroller.isFinished) {
-                if (inStateOfFling) {
-                    stopNestedScroll(TYPE_NON_TOUCH)
-                    inStateOfFling = false
-                }
-                isNestedScrollingStartedByChild = false
-                isNestedScrollingStartedByThisView = false
+                abortScrollerAnimation()
             } else {
                 ViewCompat.postInvalidateOnAnimation(this)
             }
         }
+    }
+
+    private fun abortScrollerAnimation() {
+        mScroller.abortAnimation()
+        if (inStateOfFling) {
+            stopNestedScroll(TYPE_NON_TOUCH, "abortScrollerAnimation")
+            inStateOfFling = false
+        }
+        isNestedScrollingStartedByChild = false
+        isNestedScrollingStartedByThisView = false
     }
 
     private fun fling(vx: Float, vy: Float) {
@@ -280,7 +285,7 @@ open class StickyNestedLayout : LinearLayout,
         lastFlingX = 0
         lastFlingY = 0
         inStateOfFling = true
-        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, TYPE_NON_TOUCH)
+        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, TYPE_NON_TOUCH, "fling")
         ViewCompat.postInvalidateOnAnimation(this)
     }
 
@@ -298,17 +303,24 @@ open class StickyNestedLayout : LinearLayout,
 
     override fun isNestedScrollingEnabled() = childHelper.isNestedScrollingEnabled
 
-    override fun startNestedScroll(axes: Int) = startNestedScroll(axes, TYPE_TOUCH)
+    override fun startNestedScroll(axes: Int) =
+        startNestedScroll(axes, TYPE_TOUCH, "callStartNestedScroll")
 
-    override fun startNestedScroll(axes: Int, type: Int): Boolean {
-        log { "startNestedScroll $type" }
+    override fun startNestedScroll(axes: Int, type: Int): Boolean =
+        startNestedScroll(axes, type, "callStartNestedScroll(type)")
+
+    private fun startNestedScroll(axes: Int, type: Int, reason: String): Boolean {
+        log { "startNestedScroll $type by $reason" }
         return childHelper.startNestedScroll(axes, type)
     }
 
-    override fun stopNestedScroll() = stopNestedScroll(TYPE_TOUCH)
+    override fun stopNestedScroll() = stopNestedScroll(TYPE_TOUCH, "CallStopNestedScroll")
 
-    override fun stopNestedScroll(type: Int) {
-        log { "stopNestedScroll $type" }
+    override fun stopNestedScroll(type: Int) =
+        stopNestedScroll(TYPE_TOUCH, "CallStopNestedScroll(type)")
+
+    private fun stopNestedScroll(type: Int, reason: String) {
+        log { "stopNestedScroll $type by $reason" }
         childHelper.stopNestedScroll(type)
     }
 
@@ -394,7 +406,11 @@ open class StickyNestedLayout : LinearLayout,
         isNestedScrollingStartedByThisView = false
         isNestedScrollingStartedByChild = true
         //开始通知parent的嵌套滑动
-        startNestedScroll(nestedScrollAxes or ViewCompat.SCROLL_AXIS_VERTICAL, type)
+        startNestedScroll(
+            nestedScrollAxes or ViewCompat.SCROLL_AXIS_VERTICAL,
+            type,
+            "onStartNestedScroll"
+        )
         return true
     }
 
@@ -406,7 +422,7 @@ open class StickyNestedLayout : LinearLayout,
             isNestedScrollingStartedByThisView = false
             isNestedScrollingStartedByChild = false
         }
-        stopNestedScroll(type) //结束parent的嵌套滑动
+        stopNestedScroll(type, "onStopNestedScroll") //结束parent的嵌套滑动
     }
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray?, type: Int) {
@@ -512,7 +528,7 @@ open class StickyNestedLayout : LinearLayout,
 
                     fling(vx, vy)
                 }
-                stopNestedScroll(TYPE_TOUCH)
+                stopNestedScroll(TYPE_TOUCH, "onFling")
                 return true
             }
             return false
@@ -520,12 +536,16 @@ open class StickyNestedLayout : LinearLayout,
 
         override fun onDown(e: MotionEvent): Boolean {
             log { "onDown $e" }
-            mScroller.abortAnimation()
+            abortScrollerAnimation()
             lastY = e.y
             lastX = e.x
-            isNestedScrollingStartedByThisView = true
-            isNestedScrollingStartedByChild = false
-            startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
+            if (e.x in headView.left..headView.right &&
+                e.y in headView.top..headView.bottom
+            ) {
+                isNestedScrollingStartedByThisView = true
+                isNestedScrollingStartedByChild = false
+                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, TYPE_TOUCH, "onDown")
+            }
             return true
         }
     }
@@ -541,7 +561,10 @@ open class StickyNestedLayout : LinearLayout,
         ) {
             log { if (action == MotionEvent.ACTION_UP) "onUp" else "onCancel" }
             if (isNestedScrollingStartedByThisView) {
-                stopNestedScroll(TYPE_TOUCH)
+                stopNestedScroll(
+                    TYPE_TOUCH,
+                    if (action == MotionEvent.ACTION_UP) "onUp" else "onCancel"
+                )
                 return true
             }
             return false
@@ -561,14 +584,12 @@ open class StickyNestedLayout : LinearLayout,
         when (action) {
             MotionEvent.ACTION_DOWN -> {
                 log { "onIntercept onDown" }
-                mScroller.abortAnimation()
+                abortScrollerAnimation()
                 lastY = event.y
                 lastX = event.x
                 downRawY = event.rawY
                 downRawX = event.rawX
-                isNestedScrollingStartedByThisView = false
-                isNestedScrollingStartedByChild = false
-                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
+                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, TYPE_TOUCH, "onInterceptDown")
             }
             MotionEvent.ACTION_MOVE -> {
                 lastY = event.y
