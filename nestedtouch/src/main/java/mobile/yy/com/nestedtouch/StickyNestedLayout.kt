@@ -523,6 +523,9 @@ open class StickyNestedLayout : LinearLayout,
             mScroller.abortAnimation()
             lastY = e.y
             lastX = e.x
+            isNestedScrollingStartedByThisView = true
+            isNestedScrollingStartedByChild = false
+            startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
             return true
         }
     }
@@ -565,10 +568,7 @@ open class StickyNestedLayout : LinearLayout,
                 downRawX = event.rawX
                 isNestedScrollingStartedByThisView = false
                 isNestedScrollingStartedByChild = false
-                startNestedScroll(
-                    ViewCompat.SCROLL_AXIS_VERTICAL or
-                        ViewCompat.SCROLL_AXIS_HORIZONTAL
-                )
+                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
             }
             MotionEvent.ACTION_MOVE -> {
                 lastY = event.y
