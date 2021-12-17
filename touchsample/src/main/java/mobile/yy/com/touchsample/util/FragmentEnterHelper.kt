@@ -1,8 +1,8 @@
 package mobile.yy.com.touchsample.util
 
 import android.os.Bundle
-import android.support.annotation.CallSuper
-import android.support.v4.app.Fragment
+import androidx.annotation.CallSuper
+import androidx.fragment.app.Fragment
 import kotlin.properties.Delegates
 import kotlin.properties.ObservableProperty
 import kotlin.reflect.KProperty

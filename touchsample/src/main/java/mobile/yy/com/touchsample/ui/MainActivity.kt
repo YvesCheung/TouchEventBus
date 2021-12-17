@@ -1,9 +1,9 @@
 package mobile.yy.com.touchsample.ui
 
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v7.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.appcompat.app.AppCompatActivity
 import android.view.MotionEvent
 import kotlinx.android.synthetic.main.activity_main.*
 import mobile.yy.com.toucheventbus.TouchEventBus

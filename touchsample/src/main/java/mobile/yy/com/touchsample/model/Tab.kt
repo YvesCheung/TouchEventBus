@@ -1,6 +1,6 @@
 package mobile.yy.com.touchsample.model
 
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 
 /**
  * Created by 张宇 on 2018/4/25.

@@ -3,17 +3,15 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.YvesCheung'
 
 android {
-    compileSdkVersion 26
-
-
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
     }
 
@@ -27,7 +25,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
 }
 
 tasks.withType(JavaCompile) {

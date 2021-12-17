@@ -1,9 +1,9 @@
 package mobile.yy.com.nestedtouchsample
 
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v7.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.appcompat.app.AppCompatActivity
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import com.scwang.smartrefresh.layout.header.ClassicsHeader

@@ -1,6 +1,6 @@
 package mobile.yy.com.touchsample.touch
 
-import android.support.v4.view.ViewPager
+import androidx.viewpager.widget.ViewPager
 import android.view.MotionEvent
 import mobile.yy.com.toucheventbus.AttachToViewTouchEventHandler
 import mobile.yy.com.toucheventbus.TouchEventHandler
