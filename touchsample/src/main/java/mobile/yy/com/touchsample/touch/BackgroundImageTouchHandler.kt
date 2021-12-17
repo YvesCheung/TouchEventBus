@@ -8,9 +8,8 @@ import mobile.yy.com.toucheventbus.TouchEventHandlerUtil.removePointers
 import mobile.yy.com.toucheventbus.TouchViewHolder
 
 /**
- * Created by 张宇 on 2018/4/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/25
  *
  * 双指左右滑动的时候，使背景图的ViewPager发生滑动。
  * 1，在onTouch方法中判断是否双指滑动，双指的话就给背景图dispatch触摸。如果不是双指的move，就不处理。

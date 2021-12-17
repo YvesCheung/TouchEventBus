@@ -5,9 +5,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Created by 张宇 on 2017/9/6.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2017/9/6
  * <p>
  * 处理要依附在View上的触摸事件，可以判断事件是否发生在View上，并根据View的位置纠正点击事件的x y坐标。
  */

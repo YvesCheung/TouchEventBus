@@ -6,12 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by 张宇 on 2017/9/8.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2017/9/8
  */
 public class TouchViewHolder<VIEW> {
-    private Set<VIEW> set = new HashSet<>();
+    private final Set<VIEW> set = new HashSet<>();
 
     @NonNull
     Set<VIEW> getView() {

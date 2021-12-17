@@ -5,9 +5,8 @@ import com.gxz.PagerSlidingTabStrip
 import mobile.yy.com.toucheventbus.AttachToViewTouchEventHandler
 
 /**
- * Created by 张宇 on 2018/4/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/25
  *
  * PagerSlidingTabStrip的点击事件
  */

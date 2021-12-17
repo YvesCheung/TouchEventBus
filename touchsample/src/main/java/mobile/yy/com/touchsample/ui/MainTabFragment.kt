@@ -14,9 +14,8 @@ import mobile.yy.com.touchsample.model.SubTab
 import mobile.yy.com.touchsample.util.OnVisibleChangeFragment
 
 /**
- * Created by 张宇 on 2018/4/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/25
  */
 class MainTabFragment : OnVisibleChangeFragment() {
 
@@ -38,13 +37,13 @@ class MainTabFragment : OnVisibleChangeFragment() {
 
     @SuppressLint("InflateParams")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        bizId = arguments.getInt("bizId", bizId)
+        bizId = arguments?.getInt("bizId", bizId) ?: 0
         return inflater.inflate(R.layout.fragment_main_tab, null).apply {
             setBackgroundColor(mainTab.backgroundColor)
         }
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subViewPager.adapter = mAdapter
         subTabStrip.setViewPager(subViewPager)

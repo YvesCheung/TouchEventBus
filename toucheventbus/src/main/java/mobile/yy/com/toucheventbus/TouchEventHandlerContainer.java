@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by 张宇 on 2017/9/5.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2017/9/5
  * <p>
  * 用于对{@link TouchEventHandler}根据 {@link TouchEventHandler#nextHandler()}来进行排序
  */

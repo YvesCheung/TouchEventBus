@@ -7,9 +7,8 @@ import android.view.MotionEvent;
 import java.util.List;
 
 /**
- * Created by 张宇 on 2017/9/4.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2017/9/4
  *
  * <h1>触摸处理器</h1>
  * <p>所有需要触摸事件的业务都应该是一个独立的{@link TouchEventHandler}。比如上下滑切换直播间是一个Handler，

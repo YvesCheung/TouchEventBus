@@ -6,9 +6,8 @@ import mobile.yy.com.toucheventbus.TouchEventHandlerUtil.spacing
 import mobile.yy.com.touchsample.ui.ZoomUi
 
 /**
- * Created by 张宇 on 2018/4/26.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/26
  *
  * 双指缩放字体的触摸处理
  */

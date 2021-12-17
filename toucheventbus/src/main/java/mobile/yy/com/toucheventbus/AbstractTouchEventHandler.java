@@ -9,9 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by 张宇 on 2017/9/19.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2017/9/19
  * <p>
  * 基本触摸事件处理骨架 绑定指定类型的{@link TouchViewHolder} viewHolder和 {@link TouchEventHandler} nextHandler
  */

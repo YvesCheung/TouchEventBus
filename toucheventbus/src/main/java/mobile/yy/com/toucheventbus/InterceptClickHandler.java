@@ -7,9 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Created by 张宇 on 2017/9/6.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2017/9/6
  * <p>
  * 你可以实现一个子类继承于{@link InterceptClickHandler}，然后拦截所有clickable或longClickable的View的触摸事件。
  * 注意这个Handler只会"拦截"点击事件，但不会处理点击事件，也就是不会触摸onClickListener之类的响应。

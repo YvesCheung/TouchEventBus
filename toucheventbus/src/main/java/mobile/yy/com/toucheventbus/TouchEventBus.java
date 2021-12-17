@@ -14,9 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by 张宇 on 2017/9/1.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2017/9/1
  * <p>
  * 开播端直播间的触摸消息总线，负责把消息按顺序分发给TouchEventHandler
  */

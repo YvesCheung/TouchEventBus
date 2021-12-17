@@ -14,9 +14,8 @@ import mobile.yy.com.touchsample.touch.ZoomTextTouchHandler
 import mobile.yy.com.touchsample.util.OnVisibleChangeFragment
 
 /**
- * Created by 张宇 on 2018/4/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/25
  */
 class SubTabFragment : OnVisibleChangeFragment(), ZoomUi {
 
@@ -34,11 +33,12 @@ class SubTabFragment : OnVisibleChangeFragment(), ZoomUi {
 
     @SuppressLint("InflateParams")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        subBizId = arguments.getInt("subBizId")
+        subBizId = arguments?.getInt("subBizId") ?: 0
         return inflater.inflate(R.layout.fragment_sub_tab, null)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    @SuppressLint("CheckResult")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subTextView.text = presenter.getContent()
         presenter.getTextSize().subscribe { textSize ->

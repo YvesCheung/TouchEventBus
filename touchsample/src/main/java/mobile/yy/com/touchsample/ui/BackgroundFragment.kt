@@ -15,22 +15,21 @@ import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.touch.BackgroundImageTouchHandler
 
 /**
- * Created by 张宇 on 2018/4/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/25
  */
 class BackgroundFragment : Fragment() {
 
     private lateinit var viewPager: ViewPager
 
     @SuppressLint("InflateParams")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return ViewPager(context).also { viewPager = it }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return ViewPager(inflater.context).also { viewPager = it }
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewPager.adapter = BackgroundAdapter(context)
+        viewPager.adapter = BackgroundAdapter(view.context)
         TouchEventBus.of(BackgroundImageTouchHandler::class.java).attach(viewPager)
     }
 
@@ -61,13 +60,13 @@ class BackgroundAdapter(private val context: Context) : PagerAdapter() {
         return imageView
     }
 
-    override fun destroyItem(container: ViewGroup, position: Int, imageView: Any?) {
+    override fun destroyItem(container: ViewGroup, position: Int, imageView: Any) {
         if (imageView is View) {
             container.removeView(imageView)
         }
     }
 
-    override fun isViewFromObject(view: View?, imageView: Any?) = view == imageView
+    override fun isViewFromObject(view: View, imageView: Any) = view == imageView
 
     override fun getCount() = gallery.size
 }

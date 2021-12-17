@@ -8,9 +8,8 @@ import kotlin.properties.ObservableProperty
 import kotlin.reflect.KProperty
 
 /**
- * Created by 张宇 on 2018/2/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/2/25
  *
  * 判断 [android.support.v4.app.Fragment] 可见性的辅助工具。
  * 使用时请重写 [android.support.v4.app.Fragment] 的以下几个方法：

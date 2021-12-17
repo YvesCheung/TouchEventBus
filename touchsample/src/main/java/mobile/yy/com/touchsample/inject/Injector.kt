@@ -6,9 +6,8 @@ import mobile.yy.com.touchsample.presenter.MainTabPresenter
 import mobile.yy.com.touchsample.presenter.SubTabPresenter
 
 /**
- * Created by 张宇 on 2018/4/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/25
  */
 class Injector {
 

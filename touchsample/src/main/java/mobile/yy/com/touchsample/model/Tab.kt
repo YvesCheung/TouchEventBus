@@ -3,9 +3,8 @@ package mobile.yy.com.touchsample.model
 import androidx.annotation.ColorInt
 
 /**
- * Created by 张宇 on 2018/4/25.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/25
  */
 data class MainTab(
         val bizId: Int,

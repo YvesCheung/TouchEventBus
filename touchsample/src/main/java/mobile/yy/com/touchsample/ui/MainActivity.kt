@@ -1,5 +1,6 @@
 package mobile.yy.com.touchsample.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     private val presenter by lazy { App.injector.getMainPagePresenter() }
 
+    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

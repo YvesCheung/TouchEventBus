@@ -7,27 +7,24 @@ import android.graphics.Typeface
 import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
-import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import mobile.yy.com.toucheventbus.TouchEventBus
 import mobile.yy.com.touchsample.R
 import mobile.yy.com.touchsample.touch.MenuTouchHandler
 
 /**
- * Created by 张宇 on 2018/4/26.
- * E-mail: zhangyu4@yy.com
- * YY: 909017428
+ * @author YvesCheung
+ * 2018/4/26
  */
-class FakeMenu : TextView {
+class FakeMenu @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : AppCompatTextView(context, attrs, defStyleAttr) {
 
     companion object {
         const val DEFAULT_VELOCITY = 6f
     }
-
-    constructor(context: Context) : super(context)
-
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     init {
         text = "PANEL"
