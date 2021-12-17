@@ -30,7 +30,7 @@ class WebFragment : Fragment() {
         return NestedScrollWebView(inflater.context).also { webView = it }
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         webView.settings.apply {
             @SuppressLint("SetJavaScriptEnabled")

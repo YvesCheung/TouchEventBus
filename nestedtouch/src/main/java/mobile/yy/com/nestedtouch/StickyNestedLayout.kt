@@ -425,7 +425,7 @@ open class StickyNestedLayout : LinearLayout,
         stopNestedScroll(type, "onStopNestedScroll") //结束parent的嵌套滑动
     }
 
-    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray?, type: Int) {
+    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
         if (isNestedScrollingStartedByChild) {
             log { "onNestedPreScroll dy = $dy, type = $type" }
             //dy > 0 上滑时处理
@@ -539,8 +539,8 @@ open class StickyNestedLayout : LinearLayout,
             abortScrollerAnimation()
             lastY = e.y
             lastX = e.x
-            if (e.x in headView.left..headView.right &&
-                e.y in headView.top..headView.bottom
+            if (e.x.toInt() in headView.left..headView.right &&
+                e.y.toInt() in headView.top..headView.bottom
             ) {
                 isNestedScrollingStartedByThisView = true
                 isNestedScrollingStartedByChild = false

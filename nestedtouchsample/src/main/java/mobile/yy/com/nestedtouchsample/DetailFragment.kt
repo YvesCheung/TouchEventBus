@@ -22,14 +22,14 @@ class DetailFragment : Fragment() {
 
     private val randomNumber get() = Array(30) { idx -> "${idx}000000" }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val recyclerView = RecyclerView(context).apply {
-            layoutManager = LinearLayoutManager(context)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val recyclerView = RecyclerView(inflater.context).apply {
+            layoutManager = LinearLayoutManager(inflater.context)
             adapter = DetailAdapter(randomNumber.toList())
         }
-        return SmartRefreshLayout(context).apply {
+        return SmartRefreshLayout(inflater.context).apply {
             isEnableRefresh = false
-            setRefreshFooter(ClassicsFooter(context))
+            setRefreshFooter(ClassicsFooter(inflater.context))
             setEnableNestedScroll(true)
             addView(recyclerView)
         }
