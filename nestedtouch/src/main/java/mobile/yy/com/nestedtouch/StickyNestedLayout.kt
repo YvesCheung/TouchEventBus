@@ -402,16 +402,19 @@ open class StickyNestedLayout : LinearLayout,
     //child告诉我要开始嵌套滑动
     override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int): Boolean {
         log { "onStartNestedScroll $type" }
-        nestedScrollingType.add(type)
-        isNestedScrollingStartedByThisView = false
-        isNestedScrollingStartedByChild = true
-        //开始通知parent的嵌套滑动
-        startNestedScroll(
-            nestedScrollAxes or ViewCompat.SCROLL_AXIS_VERTICAL,
-            type,
-            "onStartNestedScroll"
-        )
-        return true
+        if (axes and SCROLL_AXIS_VERTICAL != 0) { //只响应垂直方向的滑动
+            nestedScrollingType.add(type)
+            isNestedScrollingStartedByThisView = false
+            isNestedScrollingStartedByChild = true
+            //开始通知parent的嵌套滑动
+            startNestedScroll(
+                axes,
+                type,
+                "onStartNestedScroll"
+            )
+            return true
+        }
+        return false
     }
 
     //child告诉我要停止嵌套滑动
