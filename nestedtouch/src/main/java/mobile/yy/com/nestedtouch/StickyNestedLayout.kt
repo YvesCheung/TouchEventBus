@@ -439,17 +439,17 @@ open class StickyNestedLayout : LinearLayout,
             val headViewScrollDis = headViewHeight - scrollY - stickyOffsetHeight
             val headViewCanBeExpand = leftY > 0 && headViewScrollDis > 0 //上滑且headView能向上滚
 
-            consumed?.set(0, consumedByParent[0]) //x方向全是parent吃的
+            consumed[0] = consumedByParent[0] //x方向全是parent吃的
             if (headViewCanBeExpand) {
                 if (leftY > headViewScrollDis) { //滑的距离超过了能滚的距离
                     scrollByWithUnConsumed(0, headViewScrollDis)
-                    consumed?.set(1, headViewScrollDis + consumedByParent[1]) //只消费能滚的最大距离
+                    consumed[1] = headViewScrollDis + consumedByParent[1] //只消费能滚的最大距离
                 } else {
                     scrollByWithUnConsumed(0, leftY) //没超过滚的极限距离，那就滑多少滚多少
-                    consumed?.set(1, dy) //把parent吃剩的全吃了 (parentConsumed[1] + leftY)
+                    consumed[1] = dy //把parent吃剩的全吃了 (parentConsumed[1] + leftY)
                 }
             } else { //headView不能滑了 全是parent吃的
-                consumed?.set(1, consumedByParent[1])
+                consumed[1] = consumedByParent[1]
             }
         }
     }
