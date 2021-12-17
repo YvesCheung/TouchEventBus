@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
 group = 'com.github.YvesCheung'
 
 android {
@@ -34,12 +33,12 @@ tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
-// 打包源码
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+ext {
+    libraryName = 'toucheventbus'
+    libraryDescription = 'A solution for Non-Nested Scrolling'
+    siteUrl = 'https://github.com/YvesCheung/TouchEventBus'
+    gitUrl = 'https://github.com/YvesCheung/TouchEventBus.git'
+    libraryVersion = version
 }
 
-artifacts {
-    archives sourcesJar
-}
+apply from: '../gradle/publish.gradle'

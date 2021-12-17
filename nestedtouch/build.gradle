@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'maven-publish'
 group = 'com.github.YvesCheung'
 
 android {
@@ -38,12 +37,12 @@ tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
-// 打包源码
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+ext {
+    libraryName = 'nestedtouch'
+    libraryDescription = 'A solution for NestedScrolling'
+    siteUrl = 'https://github.com/YvesCheung/TouchEventBus'
+    gitUrl = 'https://github.com/YvesCheung/TouchEventBus.git'
+    libraryVersion = version
 }
 
-artifacts {
-    archives sourcesJar
-}
+apply from: '../gradle/publish.gradle'

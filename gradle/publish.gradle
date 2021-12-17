@@ -1,0 +1,113 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+group = "io.github.yvescheung"                               // Maven Group ID for the artifact
+version = libraryVersion
+final String developerId = 'YvesCheung'
+final String developerName = 'YvesCheung'
+final String developerEmail = '975135274@qq.com'
+final String licenseName = 'The Apache License, Version 2.0'
+final String licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0'
+
+if (project.hasProperty("android")) { // Android libraries
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        getArchiveBaseName().set(libraryName)
+        from android.sourceSets.main.java.srcDirs
+    }
+    task androidNativeJar(type: Jar) {
+        classifier = 'so'
+        from(new File(buildDir, 'libs'))
+        include("**/*.so")
+    }
+    ext.libraryOutputFile = "$buildDir/outputs/aar/${project.getName()}-release.aar"
+} else { // Java libraries
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        getArchiveBaseName().set(libraryName)
+        from sourceSets.main.allSource
+    }
+    ext.libraryOutputFile = "$buildDir/libs/${project.getName()}-${version}.jar"
+}
+println("artifect: $libraryOutputFile")
+
+/**
+ * ossrhUsername
+ * ossrhPassword
+ * signing.keyId
+ * signing.password
+ * signing.secretKeyRingFile
+ * Variables defined in local.properties
+ */
+Properties properties = new Properties()
+File localProperties = project.rootProject.file('local.properties')
+if (localProperties.exists()) {
+    properties.load(localProperties.newDataInputStream())
+}
+
+afterEvaluate {
+    publishing {
+        if (properties['ossrhUsername'] != null) {
+            repositories {
+                maven {
+                    // You only need this if you want to publish snapshots, otherwise just set the URL
+                    // to the release repo directly
+                    url = version.endsWith('SNAPSHOT')
+                        ? "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                        : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+                    // The username and password we've fetched earlier
+                    credentials {
+                        username properties['ossrhUsername']
+                        password properties['ossrhPassword']
+                    }
+                }
+            }
+        }
+
+        publications {
+            MyPublication(MavenPublication) {
+                from components.release
+                groupId group
+                artifactId libraryName
+                artifact sourcesJar
+                version libraryVersion
+                pom {
+                    name = libraryName
+                    description = libraryDescription
+                    url = siteUrl
+
+                    developers {
+                        developer {
+                            id = developerId
+                            name = developerName
+                            email = developerEmail
+                        }
+                    }
+
+                    scm {
+                        connection = gitUrl
+                        developerConnection = gitUrl
+                        url = siteUrl
+                    }
+
+                    licenses {
+                        license {
+                            name = licenseName
+                            url = licenseUrl
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (properties['signing.keyId'] != null) {
+        ext['signing.keyId'] = properties['signing.keyId']
+        ext['signing.password'] = properties['signing.password']
+        ext['signing.secretKeyRingFile'] = properties['signing.secretKeyRingFile']
+        signing {
+            sign publishing.publications
+        }
+    }
+}
